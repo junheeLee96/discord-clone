@@ -25,7 +25,7 @@ const useSocket = ({
       .getUserMedia({ audio: true, video: true })
       .then((stream) => {
         //내 스트림데이터(비디오, 오디오)를 가져와서 비디오 태그에 연결
-        // audioVolume(stream);
+        audioVolume(stream);
         myVideoRef.current.srcObject = stream;
         socketRef.current.on("user-connected", (id, username) => {
           //새 유저 접속 시 기존 유저는 user-connected메세지를 받음
@@ -127,15 +127,23 @@ const useSocket = ({
   }
 
   function audioVolume(stream) {
-    let myInterval;
-    const { analyser, bufferLength, dataArray } = audioContext(stream);
-    myInterval = setInterval(() => {
+    let analyserInterval;
+    // const { analyser, bufferLength, dataArray } = audioContext(stream);  console.log(stream);
+    const audioContext = new AudioContext();
+    const analyser = audioContext.createAnalyser();
+    const microphone = audioContext.createMediaStreamSource(stream);
+    microphone.connect(analyser);
+    analyser.fftSize = 256; // 256 ~ 2048
+    const bufferLength = analyser.frequencyBinCount;
+    const dataArray = new Uint8Array(bufferLength);
+    // return { analyser, bufferLength, dataArray };
+    analyserInterval = setInterval(() => {
       analyser.getByteFrequencyData(dataArray);
       const vol = audioFrequency(dataArray, bufferLength);
       setVol(Math.floor((vol / 256) * 100));
     }, 30);
 
-    return () => clearInterval(myInterval);
+    return () => clearInterval(analyserInterval);
   }
 
   return { socketRef, peerRef, vol };
