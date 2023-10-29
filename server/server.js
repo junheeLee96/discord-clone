@@ -20,7 +20,7 @@ io.on("connection", (socket) => {
 
   socket.on("join-room", (roomid, id, nickname) => {
     socket.join(roomid);
-    console.log(id);
+    console.log("new_user,id = ", id);
     //new user join to the room
 
     //sender를 제외한 방의 모든 사람에게 메세지를 날림

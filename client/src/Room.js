@@ -5,6 +5,9 @@ import { useParams } from "react-router-dom";
 import Video from "./Video";
 import useSocket from "./context/useSocket";
 import Stream from "./Stream";
+import Chat from "./Chat";
+import audioContext from "./audioContext";
+import audioFrequency from "./audioFrequency";
 
 var getUserMedia =
   navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozG;
@@ -19,59 +22,42 @@ const Room = () => {
   const stRef = useRef([]);
   const [msg, setMsg] = useState([]);
 
+  const { socketRef, vol } = useSocket({
+    // connectToNewUser,
+    setstreamsFunc, //유저들 변경 함수
+    myVideoRef, //내 화면 (비디오) ref
+    streams, //유저들 배열
+    roomid, //룸 아이디
+    setMgsFunc, //메세지 변경 함수
+    setFilterstreamFunc, //유저들 나가면 발생되는, 나간 유저 핉터함수
+  });
+
   function setMgsFunc(ms, id) {
     setMsg((p) => [...p, { message: ms, id }]);
   }
   function setstreamsFunc(st) {
+    console.log(st);
     setStreams((p) => [...p, st]);
-    stRef.current = [...stRef.current, st];
+    // stRef.current = [...stRef.current, st];
   }
   function setFilterstreamFunc(id) {
-    console.log(streams);
     const arr = streams.filter((st) => st.id !== id);
     const arr2 = stRef.current.filter((st) => st.id !== id);
     // stRef.current = [...stRef.current, ];
-    stRef.current = [...arr2];
+    // stRef.current = [...arr2];
     setStreams(arr);
   }
 
-  const { socketRef } = useSocket({
-    // connectToNewUser,
-    setstreamsFunc,
-    myVideoRef,
-    streams,
-    roomid,
-    setMgsFunc,
-    setFilterstreamFunc,
-  });
-
-  const inputRef = useRef(null);
-
-  const onSubmit = (e) => {
-    e.preventDefault();
-
-    const { value } = inputRef.current;
-    socketRef.current.emit("message-send", value, socketRef.current.id, roomid);
-    inputRef.current.value = "";
-  };
+  useEffect(() => {
+    console.log(streams);
+  }, [streams]);
 
   return (
     <div>
-      <div id="chat">
-        <form onSubmit={onSubmit}>
-          <label htmlFor="text">텍스트 입력 </label>
-          <input type="text" id="text" ref={inputRef} />
-        </form>
-
-        <div>
-          {msg.map((ms, idx) => (
-            <div key={idx}>{ms.message}</div>
-          ))}
-        </div>
-      </div>
       {socketRef && <Stream roomid={roomid} socketRef={socketRef} />}
+      {socketRef && <Chat socketRef={socketRef} roomid={roomid} msg={msg} />}
       <video ref={myVideoRef} autoPlay />
-      {stRef.current.map((st, idx) => (
+      {streams.map((st, idx) => (
         <Video st={st} key={idx} />
       ))}
     </div>
