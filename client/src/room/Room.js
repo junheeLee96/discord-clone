@@ -9,6 +9,7 @@ import Chat from "./Chat";
 import audioContext from "../audioContext";
 import audioFrequency from "../audioFrequency";
 import AudioChat from "./audioChat/AudioChat";
+import Streaming from "./streaming/Streaming";
 
 var getUserMedia =
   navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozG;
@@ -18,6 +19,7 @@ const Room = () => {
   // const socketRef = useRef(null);
   // const peerRef = useRef(null);
   const [socket, setSocket] = useState(null);
+
   const myVideoRef = useRef(null);
 
   const { roomid } = useParams();
@@ -60,6 +62,7 @@ const Room = () => {
     <div>
       <socketCtx.Provider value={socket}>
         <AudioChat roomid={roomid} />
+        {/* {socket && <Streaming roomid={roomid} />} */}
         {/* {socketRef && <Stream roomid={roomid} socketRef={socketRef} />}
         {socketRef && <Chat socketRef={socketRef} roomid={roomid} msg={msg} />}
         <video ref={myVideoRef} autoPlay />

@@ -20,7 +20,7 @@ io.on("connection", (socket) => {
 
   socket.on("join-room", (roomid, id, nickname) => {
     socket.join(roomid);
-    console.log("new_user,id = ", id);
+    // console.log("new_user,id = ", id);
     //new user join to the room
 
     //sender를 제외한 방의 모든 사람에게 메세지를 날림
@@ -36,8 +36,10 @@ io.on("connection", (socket) => {
     });
 
     socket.on("streaming-start", (roomid, id) => {
+      console.log(roomid);
+      console.log("streaming id = ", id);
       //sender 빼고 모든 룸안의 유저들에게 메세지를 날림
-      socket.broadcast.to(roomid).emit("other-user-streaming-start", id);
+      socket.broadcast.to(roomid).emit("streamer-start", id);
     });
 
     socket.on("message-send", (ms, id, roomid) => {

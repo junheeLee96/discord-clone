@@ -41,7 +41,7 @@ const useSocket = ({
         setFilterstreamFunc(id);
       });
 
-      socketRef.current.on("other-user-streaming-start", (id) => {
+      socketRef.current.on("other-ser-streaming-start", (id) => {
         connectToNewUser(id, stream, "username");
       });
     });
@@ -96,7 +96,7 @@ const useSocket = ({
     return () => {
       socketRef.current.off("receive-message");
       socketRef.current.off("other-user-streaming-start");
-      socketRef.current.off('"user-disconnected');
+      socketRef.current.off("user-disconnected");
       socketRef.current.off("user-connected");
     };
   }, []);

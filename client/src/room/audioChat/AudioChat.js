@@ -57,12 +57,18 @@ const AudioChat = ({ roomid }) => {
               socket.emit("join-room", roomid, id);
             });
           });
+        socket.on("user-disconnected", (id) => {
+          setStreams((p) => p.filter((st) => st.id !== id));
+        });
       } catch (e) {
         console.log(e);
       }
     })();
   }, [socket]);
 
+  useEffect(() => {
+    console.log(streams);
+  }, [streams]);
   function connectToNewUser(userId, stream, username) {
     //전화 받기
     const call = peerRef.current.call(userId, stream);
