@@ -1,7 +1,7 @@
 import React from "react";
 import Home from "./Home";
 import { Routes, BrowserRouter, Route } from "react-router-dom";
-import Room from "./Room";
+import Room from "./room/Room";
 
 const App = () => {
   return (

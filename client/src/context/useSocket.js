@@ -5,7 +5,10 @@ import audioFrequency from "../audioFrequency";
 import audioContext from "../audioContext";
 var getUserMedia =
   navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozG;
-
+export const userMediaConfig = {
+  video: true,
+  audio: false,
+};
 const useSocket = ({
   myVideoRef,
   // connectToNewUser,
@@ -21,29 +24,27 @@ const useSocket = ({
   useEffect(() => {
     socketRef.current = io.connect("http://localhost:9000");
 
-    navigator.mediaDevices
-      .getUserMedia({ audio: true, video: true })
-      .then((stream) => {
-        //내 스트림데이터(비디오, 오디오)를 가져와서 비디오 태그에 연결
-        audioVolume(stream);
-        myVideoRef.current.srcObject = stream;
-        socketRef.current.on("user-connected", (id, username) => {
-          //새 유저 접속 시 기존 유저는 user-connected메세지를 받음
-          connectToNewUser(id, stream, username);
-          //나 자신(기존유저)와 새 유저의 피어 연결
-        });
-
-        socketRef.current.on("user-disconnected", (id) => {
-          // const new_streams = streams.filter((st) => st.id !== id);
-          //   setStreams(new_streams);
-          delete usersRef.current[id];
-          setFilterstreamFunc(id);
-        });
-
-        socketRef.current.on("other-user-streaming-start", (id) => {
-          connectToNewUser(id, stream, "username");
-        });
+    navigator.mediaDevices.getUserMedia(userMediaConfig).then((stream) => {
+      //내 스트림데이터(비디오, 오디오)를 가져와서 비디오 태그에 연결
+      audioVolume(stream);
+      myVideoRef.current.srcObject = stream;
+      socketRef.current.on("user-connected", (id, username) => {
+        //새 유저 접속 시 기존 유저는 user-connected메세지를 받음
+        connectToNewUser(id, stream, username);
+        //나 자신(기존유저)와 새 유저의 피어 연결
       });
+
+      socketRef.current.on("user-disconnected", (id) => {
+        // const new_streams = streams.filter((st) => st.id !== id);
+        //   setStreams(new_streams);
+        delete usersRef.current[id];
+        setFilterstreamFunc(id);
+      });
+
+      socketRef.current.on("other-user-streaming-start", (id) => {
+        connectToNewUser(id, stream, "username");
+      });
+    });
 
     socketRef.current.on("receive-message", (ms, id) => {
       //sender를 포함한 룸 유저 전체에게 메세지
@@ -59,7 +60,7 @@ const useSocket = ({
       console.log("call = ", call);
       getUserMedia(
         //전화를 걸어버림
-        { video: true, audio: true },
+        userMediaConfig,
         function (stream) {
           call.answer(stream);
           call.on("stream", function (remoteStream) {
@@ -127,6 +128,7 @@ const useSocket = ({
   }
 
   function audioVolume(stream) {
+    if (!userMediaConfig.audio) return;
     let analyserInterval;
     // const { analyser, bufferLength, dataArray } = audioContext(stream);  console.log(stream);
     const audioContext = new AudioContext();
