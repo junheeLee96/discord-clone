@@ -1,8 +1,13 @@
 import React, { useEffect, useRef } from "react";
+import useAudioVol from "../../context/audioCtx/useAudioVol";
 
 const User = ({ st }) => {
   const ref = useRef();
+  const { vol } = useAudioVol({ st });
 
+  useEffect(() => {
+    console.log(vol);
+  }, [vol]);
   useEffect(() => {
     ref.current.srcObject = st.stream;
   }, [st]);

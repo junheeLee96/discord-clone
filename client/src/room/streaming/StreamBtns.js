@@ -90,7 +90,7 @@ const StreamBtns = ({ roomid }) => {
     <div>
       <button onClick={() => start()}>strart</button>
       <button onClick={() => stop()}>stop</button>
-
+      {/* {isStart && socket && <MyDisplayStreaming roomid={roomid} />} */}
       {displayStreams.map((st, idx) => (
         <User st={st} key={idx} />
       ))}

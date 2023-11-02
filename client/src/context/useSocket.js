@@ -1,13 +1,13 @@
 import Peer from "peerjs";
 import React, { useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
-import audioFrequency from "../audioFrequency";
-import audioContext from "../audioContext";
+import audioFrequency from "./audioCtx/audioFrequency";
+// import audioContext from "./audioCtx/audioContext";
 var getUserMedia =
   navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozG;
 export const userMediaConfig = {
   video: true,
-  audio: false,
+  audio: true,
 };
 const useSocket = ({
   myVideoRef,
