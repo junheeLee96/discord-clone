@@ -3,29 +3,31 @@ import { io } from "socket.io-client";
 import Peer from "peerjs";
 import { useParams } from "react-router-dom";
 import Video from "../Video";
-import useSocket from "../context/useSocket";
+import useSocket, { userMediaConfig } from "../context/useSocket";
 import Stream from "./Stream";
 import Chat from "./Chat";
 import audioContext from "../audioContext";
 import audioFrequency from "../audioFrequency";
 import AudioChat from "./audioChat/AudioChat";
 import Streaming from "./streaming/Streaming";
+import StreamBtns from "./streaming/StreamBtns";
 
-var getUserMedia =
+export const getUserMedia =
   navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozG;
 
 export const socketCtx = createContext();
+export const streamCtx = createContext();
 const Room = () => {
   // const socketRef = useRef(null);
   // const peerRef = useRef(null);
-  const [socket, setSocket] = useState(null);
-
-  const myVideoRef = useRef(null);
+  // const [socket, setSocket] = useState(null);
+  // const [myStream, setMyStream] = useState(null);
+  // const myVideoRef = useRef(null);
 
   const { roomid } = useParams();
-  const [streams, setStreams] = useState([]);
-  const stRef = useRef([]);
-  const [msg, setMsg] = useState([]);
+  // const [streams, setStreams] = useState([]);
+  // const stRef = useRef([]);
+  // const [msg, setMsg] = useState([]);
 
   // const { socketRef, vol } = useSocket({
   //   // connectToNewUser,
@@ -53,23 +55,36 @@ const Room = () => {
   //   setStreams(arr);
   // }
 
-  useEffect(() => {
-    const socket = io.connect("http://localhost:9000");
-    setSocket(socket);
-  }, []);
+  // useEffect(() => {
+  //   const socket = io.connect("http://localhost:9000");
+  //   setSocket(socket);
+  //   try {
+  //     navigator.mediaDevices
+  //       .getUserMedia(userMediaConfig)
+  //       .then((stream) => setMyStream(stream));
+  //   } catch (e) {
+  //     console.log(e);
+  //   }
+  // }, []);
 
   return (
     <div>
-      <socketCtx.Provider value={socket}>
-        <AudioChat roomid={roomid} />
-        {/* {socket && <Streaming roomid={roomid} />} */}
-        {/* {socketRef && <Stream roomid={roomid} socketRef={socketRef} />}
+      {/* <socketCtx.Provider value={socket}>
+        <streamCtx.Provider value={myStream}> */}
+      {/* {myStream && <AudioChat roomid={roomid} />} */}
+      <StreamBtns roomid={roomid} />
+      <AudioChat roomid={roomid} />
+      {/* {myStream && <Streaming roomid={roomid} />} */}
+
+      {/* {socket && <Streaming roomid={roomid} />} */}
+      {/* {socketRef && <Stream roomid={roomid} socketRef={socketRef} />}
         {socketRef && <Chat socketRef={socketRef} roomid={roomid} msg={msg} />}
         <video ref={myVideoRef} autoPlay />
         {streams.map((st, idx) => (
           <Video st={st} key={idx} />
         ))} */}
-      </socketCtx.Provider>
+      {/* </streamCtx.Provider>
+      </socketCtx.Provider> */}
     </div>
   );
 };

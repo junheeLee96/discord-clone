@@ -13,27 +13,25 @@ const Stream = ({ roomid, socketRef }) => {
   const streamingVideoRef = useRef(null);
 
   const onSharingStart = async () => {
-    // event.stopPropagation();
-    try {
-      await navigator.mediaDevices
-        .getDisplayMedia(displayMediaOptions)
-        .then((stream) => {
-          streamingVideoRef.current.srcObject = stream;
-          streamingPeerRef.current = new Peer();
-
-          streamingPeerRef.current.on("open", (id) => {
-            console.log("streaming peer = ", id);
-            socketRef.current.emit("streaming-start", roomid, id);
-          });
-
-          streamingPeerRef.current.on("call", (call) => {
-            call.answer(stream);
-          });
-        });
-    } catch (err) {
-      // Handle error
-      console.error("Error: " + err);
-    }
+    // // event.stopPropagation();
+    // try {
+    //   await navigator.mediaDevices
+    //     .getDisplayMedia(displayMediaOptions)
+    //     .then((stream) => {
+    //       streamingVideoRef.current.srcObject = stream;
+    //       streamingPeerRef.current = new Peer();
+    //       streamingPeerRef.current.on("open", (id) => {
+    //         console.log("streaming peer = ", id);
+    //         socketRef.current.emit("streaming-start", roomid, id);
+    //       });
+    //       streamingPeerRef.current.on("call", (call) => {
+    //         call.answer(stream);
+    //       });
+    //     });
+    // } catch (err) {
+    //   // Handle error
+    //   console.error("Error: " + err);
+    // }
   };
 
   // stop sharing

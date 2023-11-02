@@ -5,9 +5,22 @@ const User = ({ st }) => {
 
   useEffect(() => {
     ref.current.srcObject = st.stream;
-  }, st);
+  }, [st]);
   return (
-    <div>
+    <div style={{ position: "relative" }}>
+      {st && (
+        <div
+          style={{
+            position: "absolute",
+            top: "0",
+            left: "0",
+            color: "yellowgreen",
+            fontSize: "40px",
+          }}
+        >
+          {st.nickname}
+        </div>
+      )}
       <video autoPlay ref={ref} />
     </div>
   );
