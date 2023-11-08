@@ -30,6 +30,7 @@ function displayStream(state = initialState, action) {
     case SETMYDISPLAYSTREAM:
       return {
         ...state,
+
         myDisplayStream: {
           id: action.id,
           stream: action.stream,

@@ -1,7 +1,7 @@
 import Peer from "peerjs";
 import React, { useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
-import audioFrequency from "./audioCtx/audioFrequency";
+import audioFrequency from "./audioCtx/vol/audioFrequency";
 // import audioContext from "./audioCtx/audioContext";
 var getUserMedia =
   navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozG;
