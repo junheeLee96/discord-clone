@@ -1,18 +1,14 @@
 const SETMYSTREAM = "stream/SETMYSTREAM";
 const SETUSERSTREAMS = "stream/SETUSERSTREAMS";
 const SETFILTERUSERSTREAMS = "stream/SETFILTERUSERSTREAMS";
-const SETCALL = "stream/SETCALL";
+const SETUSERVIDEOTRACK = "stream/SETUSERVIDEOTRACK";
 
-export const setcall = ({ call }) => ({
-  type: SETCALL,
-  call,
-});
-
-export const setmystream = ({ id, stream, nickname }) => ({
+export const setmystream = ({ id, stream, nickname, peer }) => ({
   type: SETMYSTREAM,
   id,
   stream,
   nickname,
+  peer,
 });
 
 export const setuserstreams = ({ id, stream, nickname, peer }) => ({
@@ -28,20 +24,34 @@ export const setfilteruserstreams = ({ id }) => ({
   id,
 });
 
+export const setuservideotrack = ({ remoteStream }) => ({
+  type: SETUSERVIDEOTRACK,
+  remoteStream,
+});
+
 const initialState = {
   myStream: null,
   userStreams: [],
-  call: null,
+  // call: null,
+  myPeer: null,
 };
 
 function stream(state = initialState, action) {
   switch (action.type) {
-    case SETCALL:
+    case SETUSERVIDEOTRACK:
+      const arr = [...state.userStreams];
+
+      for (let i = 0; i < arr.length; i++) {
+        if (arr[i].stream.id === action.remoteStream.id) {
+          arr[i].stream = action.remoteStream;
+          console.log("zzzz");
+        }
+      }
       return {
         ...state,
-        call: action.call,
+        userStreams: [...arr],
+        // userStreams:state.userStreams.map(user=> user.stream.id ==remoteStream.id ? : ...user )
       };
-
     case SETMYSTREAM:
       return {
         ...state,
@@ -50,6 +60,7 @@ function stream(state = initialState, action) {
           stream: action.stream,
           nickname: action.nickname,
         },
+        myPeer: action.peer,
         // userStreams: [
         //   { id: action.id, stream: action.stream, nickname: action.nickname },
         // ],
@@ -66,7 +77,7 @@ function stream(state = initialState, action) {
             id: action.id,
             stream: action.stream,
             nickname: action.nickname,
-            peer: action.peer,
+            // peer: action.peer,
           },
         ],
       };

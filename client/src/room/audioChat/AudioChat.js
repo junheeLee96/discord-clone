@@ -7,12 +7,13 @@ import { io } from "socket.io-client";
 import { useDispatch, useSelector, shallowEqual } from "react-redux";
 import { setsocket } from "../../modules/socket";
 import {
-  setcall,
   setfilteruserstreams,
   setmystream,
   setuserstreams,
+  setuservideotrack,
 } from "../../modules/stream";
 import MyAudio from "./MyAudio";
+import { setpeers } from "../../modules/peers";
 
 const constraints = {
   audio: {
@@ -20,7 +21,7 @@ const constraints = {
     echoCancellation: true,
     autoGainControl: true, // 자동 게인 제어
   },
-  video: true,
+  // video: true,
 };
 
 const nickname = "nickname";
@@ -30,9 +31,9 @@ const AudioChat = ({ roomid }) => {
   const dispatch = useDispatch();
 
   const [micVol, setMicVol] = useState(1);
-
+  const peers = useSelector((s) => s.peers.peers);
   const userStreams = useSelector((s) => s.stream.userStreams);
-  const myStream = useSelector((s) => s.stream.myStream);
+  // const myStream = useSelector((s) => s.stream.myStream);
   const callRef = useRef(null);
   const peerRef = useRef(null);
   // console.log(myStream);
@@ -40,29 +41,39 @@ const AudioChat = ({ roomid }) => {
     const socket = io.connect("http://localhost:9000");
     const peer = new Peer(undefined);
     peerRef.current = peer;
-    console.log(peer);
     dispatch(setsocket(socket));
     try {
       navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
-        // stream.getVideoTracks()[0].enabled = false;
-        const videoTrack = stream.getVideoTracks()[0];
-        videoTrack.enabled = false;
+        // const videoTrack = stream.getVideoTracks()[0];
+        // videoTrack.stop();
+        // const videoTrack = stream.getVideoTracks()[0];
+        // videoTrack.enabled = false;
+
         dispatch(
           setmystream({
             stream,
             nickname,
             id: peer.id,
+            peer,
           })
         );
+        // console.log(peer);
+
         peer.on("open", (id) => {
-          console.log("open");
+          console.log("내 피어 아이디 = ", id);
           // dispatch(setcall({ call: peer.call }));
           socket.emit("join-room", roomid, id, nickname);
         });
 
         peer.on("call", (call) => {
+          // console.log(call.options);
+
+          // ontrack 이벤트 핸들러 설정
+
+          // call.on("track", (track) => console.log(track));
+          dispatch(setpeers({ peer: call, userId: call.peer }));
           // console.log("calling....!!");
-          dispatch(setcall({ call }));
+          // dispatch(setcall({ call }));
           // console.log(call);
           // console.log(call.peerConnection);
           // getUserMedia({ video: true, audio: true }, (st) => {
@@ -71,8 +82,26 @@ const AudioChat = ({ roomid }) => {
           const st = stream;
           // getUserMedia(constraints, (st) => {
           call.answer(st);
+          console.log(call.peerConnection);
+          call.peerConnection.onaddstream = function (e) {
+            // console.log(e);
+            const remotMediaStream = e.stream;
+            console.log(remotMediaStream.getVideoTracks());
+            if (remotMediaStream.length <= 1) {
+              return;
+            } else {
+              console.log(remotMediaStream);
+            }
+          };
+          // call.peerConnection.addEventListener("track", async (e) => {
+          //   console.log(e);
+          //   const [remoteStream] = e.streams;
+          //   console.log("zzzzzz");
+          //   dispatch(setuservideotrack({ remoteStream }));
+          //   // console.log(userStreams, remoteStream);
+          //   // console.log(remoteStream);
+          // });
           call.on("stream", (remoteStream) => {
-            console.log(remoteStream.getVideoTracks());
             dispatch(
               setuserstreams({
                 id: call.peer,
@@ -82,6 +111,8 @@ const AudioChat = ({ roomid }) => {
               })
             );
           });
+          // peer.peerConnection.ontrack((e) => console.log(e));
+          // call.peerConnection.addEventListener("track", (e) => console.log(e));
           // });
         });
 
@@ -101,8 +132,16 @@ const AudioChat = ({ roomid }) => {
   function connectToNewUser(peer, userId, stream, username) {
     //전화 받기
     const call = peer.call(userId, stream);
-    console.log(call);
-    callRef.current = call;
+
+    // call.peerConnection.addEventListener("track", (e) => console.log(e));
+    dispatch(setpeers({ peer: call, userId: call.peer }));
+    // callRef.current = call;
+    call.peerConnection.onaddtrack = function (e) {
+      console.log(e);
+    };
+    // call.peerConnection.addEventListener("track", (e) => {
+    //   e.track.streams.getSe
+    // });
     // console.log(call.peerConnection.getSenders());
     call.on("stream", (userVideoStream) => {
       //새로 접속한 유저의 스트림을 얻어옴

@@ -12,7 +12,10 @@ const MyAudio = ({ callRef }) => {
   const dispatch = useDispatch();
 
   const [microVol, setMicroVol] = useState(1);
+  const [isVideoOn, setIsVideoOn] = useState(false);
   const myStream = useSelector((s) => s.stream.myStream);
+  const myPeer = useSelector((s) => s.stream.myPeer);
+  const peers = useSelector((s) => s.peers.peers);
   const { gainNode } = useGainNode({ stream: myStream?.stream, audioCtx });
   const { vol } = useAudioVol({
     stream: myStream?.stream,
@@ -46,10 +49,6 @@ const MyAudio = ({ callRef }) => {
   // }, [microVol]);
 
   useEffect(() => {
-    // console.log(vol);
-  }, [vol]);
-
-  useEffect(() => {
     if (!gainNode) return;
     console.log(gainNode);
     gainNode.gain.value = 0;
@@ -58,7 +57,7 @@ const MyAudio = ({ callRef }) => {
 
   useEffect(() => {
     if (!myStream) return;
-    console.log(myStream);
+    // console.log(myStream);
     // const audioElement = new Audio();
     // const { stream } = enabledTrack({ stream: myStream.stream });
 
@@ -89,12 +88,120 @@ const MyAudio = ({ callRef }) => {
     }
   }
 
+  useEffect(() => {
+    if (!myStream || !myStream.stream) return;
+    // console.log(myStream.stream.getTracks());
+    // window.addEventListener('addtrack')
+  }, [myStream]);
+
   const onC = () => {
     // const { stream } = myStream;
     // if (!callRef.current) return;
 
-    myStream.stream.getVideoTracks()[0].enabled =
-      !myStream.stream.getVideoTracks()[0].enabled;
+    // myStream.stream.getVideoTracks()[0].enabled =
+    //   !myStream.stream.getVideoTracks()[0].enabled;
+    if (isVideoOn) {
+      navigator.mediaDevices
+        .getUserMedia({
+          audio: {
+            noiseSuppression: true,
+            echoCancellation: true,
+            autoGainControl: true, // 자동 게인 제어
+          },
+          video: false,
+        })
+        .then((stream) => {
+          // myStream.stream.removeTrack(myStream.stream.getVideoTracks()[0]);
+          myStream.stream.getTracks().forEach((track) => {
+            if (track.kind === "video") {
+              track.stop();
+              myStream.stream.removeTrack(track);
+              ref.current.srcObject = myStream.stream;
+            }
+          });
+        });
+      // myStream.stream.removeTrack(myStream.stream.getVideoTracks()[0]);
+    } else if (!isVideoOn) {
+      // console.log(myPeer);
+      // const localStream=
+      navigator.mediaDevices
+        .getUserMedia({
+          video: true,
+          // audio: true,
+        })
+        .then(async (stream) => {
+          // console.log(stream.getTracks());
+          // return;
+          const videoTrack = stream.getVideoTracks()[0];
+          await myStream.stream.addTrack(videoTrack, myStream.stream);
+          // myPeer.on("call", (call) => {
+          //   console.log(call);
+          // });
+          // console.log(myStream.stream.getTracks());
+          // const call = myPeer.call();
+          // myPeer.on((call) => console.log(call));
+          Object.values(peers).forEach((peer) => {
+            myStream.stream.getTracks().forEach((track) => {
+              if (track.kind !== "audio") {
+                peer.peerConnection.addTrack(track, myStream.stream);
+              }
+            });
+
+            // console.log(peer);
+            // // peer.peerConnection.removeStream(userid);
+
+            // peer.peerConnection.addStream(myStream.stream);
+            // // console.log(peer.localStream);
+            // peer.localStream.addTrack(videoTrack, peer.remoteStream);
+
+            // const call = peer.call(userid, myStream.stream);
+
+            // call.on("stream", (remote) => {});
+            // console.log(peer);
+            // const call = peer.call(myStream.stream)
+
+            // console.log(peer);
+            // stream.getTracks().forEach((track) => {
+            //   peer.peerConnection.addTrack(track, stream);
+            //   console.log(peer.peerConnection);
+            // });
+            // console.log(peer.peerConnection);
+            // peer.peerConnection.addStream(stream);
+            // peer.localStream.addTrack(videoTrack);
+            // peer.peerConnection.addTrack(videoTrack, stream);
+            // console.log(peer.peerConnection);
+            // peer.peerConnection.getSenders().forEach((sender) => {
+            // if (sender.track.kind === "audio" && stream.getAudioTracks()[0]) {
+            //   sender.replaceTrack(stream.getAudioTracks()[0]);
+            // }
+            // if (sender.track.kind === "video" && stream.getVideoTracks()[0]) {
+            //   sender.replaceTrack(stream.getVideoTracks()[0]);
+            // }
+            // sender.addTrack(stream.getVideoTracks()[0]);
+            // });
+          });
+          // if (!callRef.current) return;
+          // const { peerConnection } = callRef.current;
+          // peerConnection.getSenders()[0].replaceTrack(stream.getTracks()[0]);
+        });
+      //     stream.getTracks().forEach((track) => {
+      //       peerConnection.addTrack(track, myStream.stream);
+      //     });
+      // peerConnection.addTrack(stream.getVideoTracks()[0], myStream.stream);
+      // for (const track of stream.getTracks()) {
+      //   if (track.kind === "video") {
+      //     peerConnection.addTrack(track, myStream.stream);
+      //     console.log(peerConnection.getSenders());
+      //   }
+      // }
+      // myStream.strea = stream;
+      // }
+      // );
+    }
+    // console.log(
+    //   callRef.current ? callRef.current.peerConnection.getSenders() : null
+    // );
+    setIsVideoOn((p) => !p);
     return;
     navigator.mediaDevices
       .getUserMedia({ video: false, audio: true })
@@ -144,8 +251,8 @@ const MyAudio = ({ callRef }) => {
 
   return (
     <div>
-      <button onClick={onC}>Vedio on!</button>
-      <button onClick={zz}>zz</button>
+      <button onClick={onC}>{isVideoOn ? "video off" : "video on"}</button>
+      <button onClick={zz}>show video track</button>
       {/* <div id="micro-vol">
         <button onClick={() => setMicroVol((p) => p + 1)}>UP</button>
         <div>MicroVol = {microVol}</div>
