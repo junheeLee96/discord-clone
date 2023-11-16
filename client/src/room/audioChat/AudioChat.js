@@ -38,7 +38,9 @@ const AudioChat = ({ roomid }) => {
   const peerRef = useRef(null);
   // console.log(myStream);
   useEffect(() => {
-    const socket = io.connect("http://localhost:9000");
+    const socket = io.connect("http://localhost:9000", {
+      cors: { origin: "*" },
+    });
     const peer = new Peer(undefined);
     peerRef.current = peer;
     dispatch(setsocket(socket));
@@ -66,11 +68,7 @@ const AudioChat = ({ roomid }) => {
         });
 
         peer.on("call", (call) => {
-          // console.log(call.options);
-
-          // ontrack 이벤트 핸들러 설정
-
-          // call.on("track", (track) => console.log(track));
+          console.log("callll");
           dispatch(setpeers({ peer: call, userId: call.peer }));
           // console.log("calling....!!");
           // dispatch(setcall({ call }));
@@ -83,25 +81,9 @@ const AudioChat = ({ roomid }) => {
           // getUserMedia(constraints, (st) => {
           call.answer(st);
           console.log(call.peerConnection);
-          call.peerConnection.onaddstream = function (e) {
-            // console.log(e);
-            const remotMediaStream = e.stream;
-            console.log(remotMediaStream.getVideoTracks());
-            if (remotMediaStream.length <= 1) {
-              return;
-            } else {
-              console.log(remotMediaStream);
-            }
-          };
-          // call.peerConnection.addEventListener("track", async (e) => {
-          //   console.log(e);
-          //   const [remoteStream] = e.streams;
-          //   console.log("zzzzzz");
-          //   dispatch(setuservideotrack({ remoteStream }));
-          //   // console.log(userStreams, remoteStream);
-          //   // console.log(remoteStream);
-          // });
+
           call.on("stream", (remoteStream) => {
+            console.log("zzzzz");
             dispatch(
               setuserstreams({
                 id: call.peer,
@@ -111,8 +93,6 @@ const AudioChat = ({ roomid }) => {
               })
             );
           });
-          // peer.peerConnection.ontrack((e) => console.log(e));
-          // call.peerConnection.addEventListener("track", (e) => console.log(e));
           // });
         });
 

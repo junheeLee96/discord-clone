@@ -11,10 +11,11 @@ const MyAudio = ({ callRef }) => {
   const ref = useRef(null);
   const dispatch = useDispatch();
 
+  const { socket } = useSelector((s) => s.socket);
+
   const [microVol, setMicroVol] = useState(1);
   const [isVideoOn, setIsVideoOn] = useState(false);
   const myStream = useSelector((s) => s.stream.myStream);
-  const myPeer = useSelector((s) => s.stream.myPeer);
   const peers = useSelector((s) => s.peers.peers);
   const { gainNode } = useGainNode({ stream: myStream?.stream, audioCtx });
   const { vol } = useAudioVol({
@@ -132,57 +133,25 @@ const MyAudio = ({ callRef }) => {
         .then(async (stream) => {
           // console.log(stream.getTracks());
           // return;
-          const videoTrack = stream.getVideoTracks()[0];
-          await myStream.stream.addTrack(videoTrack, myStream.stream);
-          // myPeer.on("call", (call) => {
-          //   console.log(call);
-          // });
-          // console.log(myStream.stream.getTracks());
-          // const call = myPeer.call();
-          // myPeer.on((call) => console.log(call));
-          Object.values(peers).forEach((peer) => {
-            myStream.stream.getTracks().forEach((track) => {
-              if (track.kind !== "audio") {
-                peer.peerConnection.addTrack(track, myStream.stream);
-              }
+          const videoTrack = stream.getVideoTracks();
+
+          for (const video of videoTrack) {
+            myStream.stream.addTrack(video);
+            Object.values(peers).forEach((peer) => {
+              const { peerConnection } = peer;
+              peerConnection.addTrack(video, myStream.stream);
             });
+          }
+          socket.emit("zz");
+          // await myStream.stream.addTrack(videoTrack, myStream.stream);
 
-            // console.log(peer);
-            // // peer.peerConnection.removeStream(userid);
-
-            // peer.peerConnection.addStream(myStream.stream);
-            // // console.log(peer.localStream);
-            // peer.localStream.addTrack(videoTrack, peer.remoteStream);
-
-            // const call = peer.call(userid, myStream.stream);
-
-            // call.on("stream", (remote) => {});
-            // console.log(peer);
-            // const call = peer.call(myStream.stream)
-
-            // console.log(peer);
-            // stream.getTracks().forEach((track) => {
-            //   peer.peerConnection.addTrack(track, stream);
-            //   console.log(peer.peerConnection);
-            // });
-            // console.log(peer.peerConnection);
-            // peer.peerConnection.addStream(stream);
-            // peer.localStream.addTrack(videoTrack);
-            // peer.peerConnection.addTrack(videoTrack, stream);
-            // console.log(peer.peerConnection);
-            // peer.peerConnection.getSenders().forEach((sender) => {
-            // if (sender.track.kind === "audio" && stream.getAudioTracks()[0]) {
-            //   sender.replaceTrack(stream.getAudioTracks()[0]);
-            // }
-            // if (sender.track.kind === "video" && stream.getVideoTracks()[0]) {
-            //   sender.replaceTrack(stream.getVideoTracks()[0]);
-            // }
-            // sender.addTrack(stream.getVideoTracks()[0]);
-            // });
-          });
-          // if (!callRef.current) return;
-          // const { peerConnection } = callRef.current;
-          // peerConnection.getSenders()[0].replaceTrack(stream.getTracks()[0]);
+          // Object.values(peers).forEach((peer) => {
+          //   myStream.stream.getTracks().forEach((track) => {
+          //     if (track.kind !== "audio") {
+          //       peer.peerConnection.addTrack(track, myStream.stream);
+          //     }
+          //   });
+          // });
         });
       //     stream.getTracks().forEach((track) => {
       //       peerConnection.addTrack(track, myStream.stream);

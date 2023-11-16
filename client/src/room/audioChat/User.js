@@ -28,6 +28,7 @@ const User = ({ st }) => {
     // ref.current.addEventListener("track", (s) => console.log(s));
 
     const peer = peers[st.id];
+    console.log(st);
     // console.log(st);
     ref.current.srcObject = st.stream;
 
