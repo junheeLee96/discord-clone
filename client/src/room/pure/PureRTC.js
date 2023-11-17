@@ -1,15 +1,21 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
 
 const PureRTC = () => {
   const myRef = useRef(null);
   const peerRef = useRef(null);
   const socketRef = useRef(null);
+  const [o, setO] = useState(null);
   const otherUserRef = useRef(null);
   const roomId = "123123";
   useEffect(() => {
     const socket = io("localhost:8080");
     socketRef.current = socket;
+
+    // socket.emit("zz", roomId);
+    // socket.on("zzzzzz", () => {
+    //   console.log("ewqewqewqzzzzz");
+    // });
 
     // iceServers는 stun sever설정
     peerRef.current = new RTCPeerConnection({
@@ -24,6 +30,7 @@ const PureRTC = () => {
       video: true,
       audio: true,
     };
+
     navigator.mediaDevices
       .getUserMedia(constraints)
       .then((stream) => {
@@ -43,14 +50,17 @@ const PureRTC = () => {
     socket.on("welcom", async (user, newCount) => {
       const offer = await peerRef.current.createOffer();
       peerRef.current.setLocalDescription(offer);
+      console.log("보내는 오퍼 = ", offer);
       socket.emit("offer", offer, roomId);
     });
 
     socket.on("offer", async (offer) => {
+      console.log("받는오퍼 = ", offer);
       peerRef.current.setRemoteDescription(offer);
       const answer = await peerRef.current.createAnswer();
+      console.log("보내는 answer = ", answer);
       peerRef.current.setLocalDescription(answer);
-      socket.emit("answer", answer, peerRef.current);
+      socket.emit("answer", answer, roomId);
     });
 
     socket.on("ice", (ice) => {
@@ -58,24 +68,28 @@ const PureRTC = () => {
     });
 
     socket.on("answer", (answer) => {
+      console.log("받은 answer = ", answer);
       peerRef.current.setRemoteDescription(answer);
     });
 
-    socket.on("bye", (left, newCount) => {
-      console.log(left, newCount);
-    });
-
-    peerRef.current.addEventListener("icecandiate", (data) => {
+    peerRef.current.addEventListener("icecandidate", (data) => {
+      console.log("ice data = ", data);
       socket.emit("ice", data.candidate, roomId);
     });
 
-    peerRef.current.addEventListener("addstream", (data) => {
-      otherUserRef.current.srcObject = data.stream;
+    peerRef.current.addEventListener("track", (data) => {
+      console.log("addstream data = ", data);
+      const stream = data.streams[0] || new MediaStream([data.track]);
+
+      otherUserRef.current.srcObject = stream;
+      // otherUserRef.current.srcObject = data.streams[0];
     });
   }, []);
+
   return (
     <div>
       <video ref={myRef} autoPlay />
+      {/* {o && <video srcObject={o} autoPlay />} */}
       <video ref={otherUserRef} autoPlay />
     </div>
   );
