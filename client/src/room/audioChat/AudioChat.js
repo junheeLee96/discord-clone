@@ -41,7 +41,7 @@ const AudioChat = ({ roomid }) => {
     const socket = io.connect("http://localhost:9000", {
       cors: { origin: "*" },
     });
-    const peer = new Peer(undefined);
+    const peer = new Peer();
     peerRef.current = peer;
     dispatch(setsocket(socket));
     try {
@@ -63,6 +63,7 @@ const AudioChat = ({ roomid }) => {
 
         peer.on("open", (id) => {
           console.log("내 피어 아이디 = ", id);
+
           // dispatch(setcall({ call: peer.call }));
           socket.emit("join-room", roomid, id, nickname);
         });
@@ -83,7 +84,9 @@ const AudioChat = ({ roomid }) => {
           console.log(call.peerConnection);
 
           call.on("stream", (remoteStream) => {
-            console.log("zzzzz");
+            call.peerConnection.addEventListener("track", (e) => {
+              console.log(e);
+            });
             dispatch(
               setuserstreams({
                 id: call.peer,
@@ -107,11 +110,16 @@ const AudioChat = ({ roomid }) => {
     socket.on("user-disconnected", (id) => {
       dispatch(setfilteruserstreams({ id }));
     });
+
+    return () => {
+      if (peerRef.current) peerRef.current.destroy();
+    };
   }, []);
 
   function connectToNewUser(peer, userId, stream, username) {
     //전화 받기
     const call = peer.call(userId, stream);
+    call.peerConnection.addEventListener("track", (e) => console.log(e));
 
     // call.peerConnection.addEventListener("track", (e) => console.log(e));
     dispatch(setpeers({ peer: call, userId: call.peer }));

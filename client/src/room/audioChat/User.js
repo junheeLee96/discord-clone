@@ -35,9 +35,24 @@ const User = ({ st }) => {
     // peer.peerConnection.ontrack((e) => console.log(e));
 
     // console.log(peer);
-
-    const peerConnection = new RTCPeerConnection();
+    peer.on("data", (data) => console.log(data));
+    const { peerConnection } = peer;
+    console.log(peerConnection);
+    peerConnection.onaddstream = function (e) {
+      console.log(e);
+    };
+    peerConnection.ontrack = function (e) {
+      console.log(e);
+    };
+    peerConnection.addEventListener("addstream", (e) => {
+      console.log(e);
+    });
+    peerConnection.addstream = function (e) {
+      console.log(e);
+    };
     peerConnection.addEventListener("track", async (event) => {
+      console.log("zzfjkdlsjflds");
+      // console.log(event);
       // console.log(event);
       // const [remoteStream] = event.streams;
       // remoteVideo.srcObject = remoteStream;
@@ -57,6 +72,7 @@ const User = ({ st }) => {
   };
   return (
     <div style={{ position: "relative", marginTop: "20px" }}>
+      <button onClick={() => setUserVol((p) => p + 1)}>zzzzzz</button>
       <button onClick={onzz}>스트림 트랙 확인</button>
       <div
         className="cont-vol"

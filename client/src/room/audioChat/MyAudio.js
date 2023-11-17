@@ -128,18 +128,20 @@ const MyAudio = ({ callRef }) => {
       navigator.mediaDevices
         .getUserMedia({
           video: true,
+          audio: true,
           // audio: true,
         })
         .then(async (stream) => {
           // console.log(stream.getTracks());
           // return;
-          const videoTrack = stream.getVideoTracks();
+          const videoTrack = stream.getTracks();
 
           for (const video of videoTrack) {
             myStream.stream.addTrack(video);
             Object.values(peers).forEach((peer) => {
               const { peerConnection } = peer;
-              peerConnection.addTrack(video, myStream.stream);
+              console.log(peer);
+              peerConnection.addTrack(video, peer.remoteStream);
             });
           }
           socket.emit("zz");
