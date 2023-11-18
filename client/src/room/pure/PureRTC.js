@@ -42,48 +42,56 @@ const PureRTC = () => {
           peerRef.current.addTrack(track, stream);
         });
         socket.emit("join-room", roomId);
+        socket.on("welcom", async (user, newCount) => {
+          console.log("welcom");
+          const offer = await peerRef.current.createOffer();
+          peerRef.current.setLocalDescription(offer);
+          console.log("보내는 오퍼 = ", offer);
+          socket.emit("offer", offer, roomId);
+        });
+
+        socket.on("offer", async (offer) => {
+          console.log("받는오퍼 = ", offer);
+          peerRef.current.setRemoteDescription(offer);
+          const answer = await peerRef.current.createAnswer();
+          console.log("보내는 answer = ", answer);
+          await peerRef.current.setLocalDescription(answer);
+          socket.emit("answer", answer, roomId);
+        });
+
+        socket.on("ice", (ice) => {
+          peerRef.current.addIceCandidate(ice);
+        });
+
+        socket.on("answer", (answer) => {
+          console.log("받은 answer = ", answer);
+          // peerRef.current.setLocalDescription(answer);
+          peerRef.current.setRemoteDescription(answer);
+        });
+
+        peerRef.current.addEventListener("icecandidate", (data) => {
+          // console.log("ice data = ", data);
+          socket.emit("ice", data.candidate, roomId);
+        });
+
+        peerRef.current.addEventListener("track", (event) => {
+          console.log("addstream data = ", event);
+          const stream = event.streams[0] || new MediaStream([event.track]);
+          console.log("stream = ", stream);
+
+          otherUserRef.current.srcObject = stream;
+          console.log("stream.getTracks() = ", stream.getTracks());
+          stream.getTracks().forEach((track) => {
+            track.addEventListener("ended", () => {
+              console.log("Track ended:", track);
+            });
+          });
+          // otherUserRef.current.srcObject = data.streams[0];
+        });
       })
       .catch((error) => {
         console.error("Error accessing media devices.", error);
       });
-
-    socket.on("welcom", async (user, newCount) => {
-      const offer = await peerRef.current.createOffer();
-      peerRef.current.setLocalDescription(offer);
-      console.log("보내는 오퍼 = ", offer);
-      socket.emit("offer", offer, roomId);
-    });
-
-    socket.on("offer", async (offer) => {
-      console.log("받는오퍼 = ", offer);
-      peerRef.current.setRemoteDescription(offer);
-      const answer = await peerRef.current.createAnswer();
-      console.log("보내는 answer = ", answer);
-      peerRef.current.setLocalDescription(answer);
-      socket.emit("answer", answer, roomId);
-    });
-
-    socket.on("ice", (ice) => {
-      peerRef.current.addIceCandidate(ice);
-    });
-
-    socket.on("answer", (answer) => {
-      console.log("받은 answer = ", answer);
-      peerRef.current.setRemoteDescription(answer);
-    });
-
-    peerRef.current.addEventListener("icecandidate", (data) => {
-      console.log("ice data = ", data);
-      socket.emit("ice", data.candidate, roomId);
-    });
-
-    peerRef.current.addEventListener("track", (data) => {
-      console.log("addstream data = ", data);
-      const stream = data.streams[0] || new MediaStream([data.track]);
-
-      otherUserRef.current.srcObject = stream;
-      // otherUserRef.current.srcObject = data.streams[0];
-    });
   }, []);
 
   return (

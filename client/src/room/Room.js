@@ -4,6 +4,7 @@ import { useParams } from "react-router-dom";
 import AudioChat from "./audioChat/AudioChat";
 import StreamBtns from "./streaming/StreamBtns";
 import PureRTC from "./pure/PureRTC";
+import VideoCall from "./pure/VideoCall";
 
 export const getUserMedia =
   navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozG;
@@ -16,6 +17,7 @@ const Room = () => {
   return (
     <div>
       <PureRTC />
+      {/* <VideoCall /> */}
       {/* <StreamBtns roomid={roomid} />
       <AudioChat roomid={roomid} /> */}
     </div>
