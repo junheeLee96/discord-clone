@@ -1,13 +1,14 @@
 import React, { useEffect, useRef, useState } from "react";
+import { useSelector } from "react-redux";
 import { io } from "socket.io-client";
 
 const PureRTC = () => {
   const myRef = useRef(null);
   const peerRef = useRef(null);
   const socketRef = useRef(null);
-  const [o, setO] = useState(null);
   const otherUserRef = useRef(null);
   const roomId = "123123";
+
   useEffect(() => {
     const socket = io("localhost:8080");
     socketRef.current = socket;
