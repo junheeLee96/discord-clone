@@ -104,8 +104,8 @@ io.on("connection", (socket) => {
     socket.to(roomid).emit("welcom");
   });
 
-  socket.on("offer", (offer, roomid) => {
-    socket.to(roomid).emit("offer", offer);
+  socket.on("offer", (offer, roomid, id) => {
+    socket.to(roomid).emit("offer", offer, id);
     console.log("offer = ", "rooomid = ", roomid);
   });
 
@@ -116,6 +116,7 @@ io.on("connection", (socket) => {
 
   // socket.on("answer", answer);
   socket.on("ice", (ice, roomid) => {
+    console.log("ice!!");
     socket.to(roomid).emit("ice", ice);
     // console.log(data);
   });

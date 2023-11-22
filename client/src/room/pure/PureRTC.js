@@ -7,6 +7,8 @@ const PureRTC = () => {
   const peerRef = useRef(null);
   const socketRef = useRef(null);
   const otherUserRef = useRef(null);
+  const [users, setUsers] = useState([]);
+
   const roomId = "123123";
 
   useEffect(() => {
@@ -35,27 +37,26 @@ const PureRTC = () => {
     navigator.mediaDevices
       .getUserMedia(constraints)
       .then((stream) => {
-        console.log("Got MediaStream:", stream);
+        const id = stream.id;
         const audio = stream.getAudioTracks()[0];
         audio.enabled = false;
         myRef.current.srcObject = stream;
-        stream.getTracks().forEach((track) => {
-          peerRef.current.addTrack(track, stream);
-        });
+        peerRef.current.addStream(stream);
+        // stream.getTracks().forEach((track) => {
+        //   peerRef.current.addTrack(track, stream);
+        // });
         socket.emit("join-room", roomId);
-        socket.on("welcom", async (user, newCount) => {
-          console.log("welcom");
+        socket.on("welcom", async () => {
           const offer = await peerRef.current.createOffer();
+          console.log("offer = ", offer);
           peerRef.current.setLocalDescription(offer);
-          console.log("보내는 오퍼 = ", offer);
-          socket.emit("offer", offer, roomId);
+
+          socket.emit("offer", offer, roomId, id);
         });
 
-        socket.on("offer", async (offer) => {
-          console.log("받는오퍼 = ", offer);
+        socket.on("offer", async (offer, id) => {
           peerRef.current.setRemoteDescription(offer);
           const answer = await peerRef.current.createAnswer();
-          console.log("보내는 answer = ", answer);
           await peerRef.current.setLocalDescription(answer);
           socket.emit("answer", answer, roomId);
         });
@@ -65,7 +66,6 @@ const PureRTC = () => {
         });
 
         socket.on("answer", (answer) => {
-          console.log("받은 answer = ", answer);
           // peerRef.current.setLocalDescription(answer);
           peerRef.current.setRemoteDescription(answer);
         });
@@ -76,16 +76,11 @@ const PureRTC = () => {
         });
 
         peerRef.current.addEventListener("track", (event) => {
-          console.log("addstream data = ", event);
           const stream = event.streams[0] || new MediaStream([event.track]);
-          console.log("stream = ", stream);
-
+          console.log(peerRef.current);
           otherUserRef.current.srcObject = stream;
-          console.log("stream.getTracks() = ", stream.getTracks());
           stream.getTracks().forEach((track) => {
-            track.addEventListener("ended", () => {
-              console.log("Track ended:", track);
-            });
+            track.addEventListener("ended", () => {});
           });
           // otherUserRef.current.srcObject = data.streams[0];
         });

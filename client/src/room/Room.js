@@ -17,8 +17,8 @@ const Room = () => {
 
   return (
     <div>
-      <RoomComponent />
-      {/* <PureRTC /> */}
+      {/* <RoomComponent /> */}
+      <PureRTC />
       {/* <VideoCall /> */}
       {/* <StreamBtns roomid={roomid} />
       <AudioChat roomid={roomid} /> */}

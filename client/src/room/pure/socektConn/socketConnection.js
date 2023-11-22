@@ -11,10 +11,12 @@ const constraints = {
 
 class SocketConnection {
   constructor(settings) {
+    this.otherUserStream = false;
+
     this.settings = settings;
-    this.stream = this.getMedia();
     this.myPeer = initializePeerConnection();
     this.socket = initializeSocketConnection();
+    this.stream = this.getMedia();
     if (this.socket) this.isSocketConnected = true;
     if (this.myPeer) this.isPeersConnected = true;
 
@@ -25,6 +27,10 @@ class SocketConnection {
   getMedia = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia(constraints);
+      stream.getAudioTracks()[0].enabled = false;
+      stream.getTracks().forEach((track) => {
+        this.myPeer.addTrack(track, stream);
+      });
       return new Promise((resolve, reject) => {
         resolve(stream); // 미디어 스트림을 해결
       });
@@ -61,6 +67,7 @@ class SocketConnection {
     });
 
     this.socket.on("ice", (ice) => {
+      console.log("ice@");
       this.myPeer.addIceCandidate(ice);
     });
 
@@ -69,6 +76,29 @@ class SocketConnection {
       // peerRef.current.setLocalDescription(answer);
       this.myPeer.setRemoteDescription(answer);
     });
+
+    this.myPeer.addEventListener("icecandidate", (data) => {
+      console.log("ice data = ", data);
+
+      this.socket.emit("ice", data.candidate, this.settings.roomId);
+    });
+
+    // this.myPeer.addEventListener("track", (event) => {
+    //   console.log("new user connected!!!!!");
+    //   //   console.log("addstream data = ", event);
+    //   const stream = event.streams[0] || new MediaStream([event.track]);
+    //   //   console.log("stream = ", stream);
+    //   this.settings.setuser(stream);
+    //   //   this.otherUserStream = stream;
+    //   // otherUserRef.current.srcObject = stream;
+    //   // console.log("stream.getTracks() = ", stream.getTracks());
+    //   stream.getTracks().forEach((track) => {
+    //     track.addEventListener("ended", () => {
+    //       console.log("Track ended:", track);
+    //     });
+    //   });
+    //   // otherUserRef.current.srcObject = data.streams[0];
+    // });
   };
 }
 
@@ -80,20 +110,21 @@ const initializePeerConnection = () => {
       },
     ],
   });
-  // peer.addEventListener("track", (event) => {
-  //   console.log("addstream data = ", event);
-  //   const stream = event.streams[0] || new MediaStream([event.track]);
-  //   console.log("stream = ", stream);
 
-  //   otherUserRef.current.srcObject = stream;
-  //   console.log("stream.getTracks() = ", stream.getTracks());
-  //   stream.getTracks().forEach((track) => {
-  //     track.addEventListener("ended", () => {
-  //       console.log("Track ended:", track);
+  //   peer.addEventListener("track", (event) => {
+  //     console.log("addstream data = ", event);
+  //     const stream = event.streams[0] || new MediaStream([event.track]);
+  //     console.log("stream = ", stream);
+
+  //     otherUserRef.current.srcObject = stream;
+  //     console.log("stream.getTracks() = ", stream.getTracks());
+  //     stream.getTracks().forEach((track) => {
+  //       track.addEventListener("ended", () => {
+  //         console.log("Track ended:", track);
+  //       });
   //     });
+  //     // otherUserRef.current.srcObject = data.streams[0];
   //   });
-  //   // otherUserRef.current.srcObject = data.streams[0];
-  // });
 
   return peer;
 };
