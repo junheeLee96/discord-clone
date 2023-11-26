@@ -62,15 +62,17 @@ const PureRTC = () => {
 
       function addEvent(peer, sender) {
         peer.addEventListener("icecandidate", (data) => {
-          console.log("ice data = ", data);
+          console.log("ice!!addeventlistener");
           socket.emit("ice", data.candidate, sender);
         });
+
         peer.addEventListener("track", (event) => {
-          console.log("treack.stream = ", event.stream);
           // console.log(event.streams[0]);
+          console.log("track!!");
           const stream = event.streams[0];
           if (!stream) return;
-
+          console.log(stream);
+          setUsers((p) => [...p, stream]);
           console.log(stream);
           otherUserRef.current.srcObject = stream;
           stream.getTracks().forEach((track) => {
@@ -84,6 +86,7 @@ const PureRTC = () => {
       socket.emit("join-room", roomId, id);
 
       socket.on("offs", async (offer, sender) => {
+        console.log("offs = ", offer);
         const peer = new RTCPeerConnection({
           iceServers: [
             {
@@ -91,11 +94,12 @@ const PureRTC = () => {
             },
           ],
         });
+        addEvent(peer, sender);
 
-        stream.getTracks().forEach((track) => {
-          peer.addTrack(track, stream);
-        });
-
+        // stream.getTracks().forEach((track) => {
+        //   peer.addTrack(track, stream);
+        // });
+        peer.addStream(stream);
         await peer.setRemoteDescription(offer);
 
         const answer = await peer.createAnswer();
@@ -103,10 +107,8 @@ const PureRTC = () => {
         socket.emit("answers", answer, sender);
 
         socket.on("icezz", (ice) => {
-          console.log("ice", ice);
           peer.addIceCandidate(ice);
         });
-        addEvent(peer, sender);
       });
       //
       //
@@ -120,11 +122,13 @@ const PureRTC = () => {
           ],
         });
 
-        stream.getTracks().forEach((track) => {
-          peer.addTrack(track, stream);
-        });
+        // stream.getTracks().forEach((track) => {
+        //   peer.addTrack(track, stream);
+        // });
+        peer.addStream(stream);
 
         const offer = await peer.createOffer();
+        console.log(offer);
 
         await peer.setLocalDescription(offer);
 
@@ -132,12 +136,11 @@ const PureRTC = () => {
 
         socket.on("answers", async (answer) => {
           await peer.setRemoteDescription(answer);
-          socket.on("icezz", async (ice) => {
-            console.log("ice = ", ice);
-            peer.addIceCandidate(ice);
-          });
         });
         addEvent(peer, receiver);
+        socket.on("icezz", async (ice) => {
+          peer.addIceCandidate(ice);
+        });
       });
 
       // socket.on("new_user_conn", async (new_user) => {

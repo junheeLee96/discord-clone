@@ -105,6 +105,7 @@ io.on("connection", (socket) => {
 
   socket.on("offs", (offer, receiver, sender) => {
     console.log("offs");
+    console.log("receiver = ", receiver);
     io.to(receiver).emit("offs", offer, sender);
   });
 
