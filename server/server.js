@@ -97,12 +97,45 @@ io.on("connection", (socket) => {
   //   console.log("zzz");
   //   socket.broadcast.to(roomid).emit("zzzzzz");
   // });
-  socket.on("join-room", (roomid, message) => {
-    console.log("roomid = ", roomid);
+  socket.on("join-room", (roomid, id) => {
     socket.join(roomid);
-    // socket.emit("welcom");
-    socket.to(roomid).emit("welcom");
+    socket.to(roomid).emit("new_user_connected", id);
+    // socket.to(roomid).emit("new_user_conn", id);
   });
+
+  socket.on("offs", (offer, receiver, sender) => {
+    console.log("offs");
+    io.to(receiver).emit("offs", offer, sender);
+  });
+
+  socket.on("answers", (answer, receiver) => {
+    console.log("answers");
+    io.to(receiver).emit("answers", answer);
+  });
+
+  //
+  //
+  //
+
+  socket.on("off", (offer, sender, new_user) => {
+    io.to(new_user).emit("off", offer, sender);
+  });
+
+  socket.on("ans", (sender, reciever, answer) => {
+    io.to(reciever).emit("ans", answer, sender);
+  });
+
+  // socket.on("send_offer_to_new_user", (offer, new_userid) => {
+  //   console.log(new_userid);
+
+  //   io.to(new_userid).emit("origin_users_offer", offer);
+  // });
+
+  //
+  //
+  //
+  //
+  //
 
   socket.on("offer", (offer, roomid, id) => {
     socket.to(roomid).emit("offer", offer, id);
@@ -115,10 +148,10 @@ io.on("connection", (socket) => {
   });
 
   // socket.on("answer", answer);
-  socket.on("ice", (ice, roomid) => {
+  socket.on("ice", (ice, sender) => {
     console.log("ice!!");
-    socket.to(roomid).emit("ice", ice);
-    // console.log(data);
+    io.to(sender).emit("icezz", ice);
+    // socket.to(roomid).emit("ice", ice);
   });
   // console.log(socket.id, "connection");
 
