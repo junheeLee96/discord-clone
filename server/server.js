@@ -113,16 +113,19 @@ io.on("connection", (socket) => {
   });
 
   socket.on("send_off", (offer, sender, reciever) => {
+    // 오퍼
     console.log("send_off, sender = ", sender, "receiver = ", reciever);
     io.to(reciever).emit(`send_off`, offer, sender);
   });
 
   socket.on("send_ans", (answer, sender, reciever) => {
+    // 오퍼 응답
     console.log("send_ans, sender = ", sender, "receiver = ", reciever);
     io.to(reciever).emit(`send_ans`, answer, sender);
   });
 
   socket.on("candidate", (ice, reciever, sender) => {
+    // ice 교환 => 길찾기
     console.log("candiate, sender = ", sender, "re = ", reciever);
     io.to(reciever).emit(`candidate`, ice, sender);
   });
