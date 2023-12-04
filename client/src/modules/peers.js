@@ -1,9 +1,10 @@
 const SETPEERS = "socekt/SETPEERS";
 
-export const setpeers = ({ peer, userId }) => ({
+export const setpeers = ({ peer, userId, stream }) => ({
   type: SETPEERS,
   peer,
   userId,
+  stream,
 });
 
 const initialState = {
@@ -14,7 +15,10 @@ function peers(state = initialState, action) {
   switch (action.type) {
     case SETPEERS:
       return {
-        peers: { ...state.peers, [action.userId]: action.peer },
+        peers: {
+          ...state.peers,
+          [action.userId]: { peer: action.peer, stream: action.stream },
+        },
       };
 
     default:

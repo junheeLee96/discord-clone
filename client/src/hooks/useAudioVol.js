@@ -1,19 +1,15 @@
 import React, { useEffect, useState } from "react";
-import audioContext from "../audioContext";
-import audioFrequency from "./audioFrequency";
-import { userMediaConfig } from "../../useSocket";
-import analyserCtx from "./analyser";
+import audioContext from "../context/audioCtx/audioContext";
+import audioFrequency from "../context/audioCtx/vol/audioFrequency";
+import { userMediaConfig } from "../context/useSocket";
+import analyserCtx from "../context/audioCtx/vol/analyser";
 
-const useAudioVol = ({ stream, audioCtx, microVol }) => {
+const useAudioVol = ({ stream, audioCtx }) => {
   const [vol, setVol] = useState(0);
 
   useEffect(() => {
     if (!stream) return;
-    // console.log(stream.getAudioTracks());
-
-    // if (st.stream.getAudioTracks().length <= 0) return;
-    // if (userMediaConfig.audio === false) return;
-
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     let analyserInterval;
     const { analyser, bufferLength, dataArray } = analyserCtx(stream, audioCtx);
     analyserInterval = setInterval(() => {

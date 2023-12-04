@@ -1,62 +1,70 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { io } from "socket.io-client";
 import UserSquare from "./UserSquare";
 import MySquare from "./MySquare";
+import { setpeers } from "../../modules/peers";
 
 export const Video = ({ stream }) => {
   const ref = useRef();
   useEffect(() => {
     if (!stream) return;
-    console.log(stream.stream);
-    console.log(stream.stream.getTracks());
     ref.current.srcObject = stream.stream;
   }, [stream]);
   return <video ref={ref} autoPlay />;
 };
 
 const PureRTC = () => {
-  const myRef = useRef(null);
-  const peerRef = useRef(null);
+  const dispatch = useDispatch();
+
   const socketRef = useRef(null);
-  const otherUserRef = useRef(null);
   const idRef = useRef(null);
   const [MyVideo, setMyVideo] = useState(null);
-  const [users, setUsers] = useState({});
+  // const [users, setUsers] = useState({});
+  const users = useSelector((s) => s.peers.peers);
   // const [peers, setPeers] = useState({});
   const peers = useRef({});
 
   const roomId = "123123";
 
   useEffect(() => {
-    console.log(users);
-  }, [users]);
-  useEffect(() => {
     const socket = io("localhost:8080");
     socketRef.current = socket;
 
     const constraints = {
       video: true,
-      audio: true,
+      audio: {
+        noiseSuppression: true,
+        echoCancellation: true,
+        autoGainControl: true, // 자동 게인 제어}
+      },
     };
 
     navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
       const id = socket.id;
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const audioContext = audioCtx;
+      // const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      const source = audioContext.createMediaStreamSource(stream);
+      const gainNode = audioContext.createGain();
+      gainNode.gain.value = 0.5;
+      var gainConnected = source.connect(gainNode);
+      gainConnected.connect(audioContext.destination);
+      gainNode.gain.value = 0;
       idRef.current = id;
-      const audio = stream.getAudioTracks()[0];
-      audio.enabled = false;
+      // const audio = stream.getAudioTracks()[0];
+      // audio.enabled = false;
       setMyVideo(stream);
-      console.log("my id = ", id);
       function eventing(peer, user) {
         peer.addEventListener("icecandidate", (data) => {
           socket.emit("candidate", data.candidate, user, id);
         });
         peer.addEventListener("track", (e) => {
           const stream = e.streams[0];
-
-          setUsers((p) => {
-            return { ...p, [user]: { stream } };
-          });
+          dispatch(setpeers({ peer, userId: user, stream }));
+          // setUsers((p) => {
+          //   return { ...p, [user]: { stream } };
+          // });
         });
       }
       socket.emit("join-room", roomId, id);
@@ -126,9 +134,10 @@ const PureRTC = () => {
         peers.current[new_user].peer.addEventListener("track", (e) => {
           const stream = e.streams[0];
 
-          setUsers((p) => {
-            return { ...p, [new_user]: { stream } };
-          });
+          dispatch(setpeers({ peer, userId: new_user, stream }));
+          // setUsers((p) => {
+          //   return { ...p, [new_user]: { stream } };
+          // });
         });
         // offer 추가
         await peers.current[new_user].peer.setRemoteDescription(offer);

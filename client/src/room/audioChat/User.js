@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import useAudioVol from "../../context/audioCtx/vol/useAudioVol";
+import useAudioVol from "../../hooks/useAudioVol";
 import useGainNode from "../../context/audioCtx/gainNode/useGainNode";
 import { useSelector } from "react-redux";
 const min = 0;
