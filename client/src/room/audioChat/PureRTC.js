@@ -4,6 +4,7 @@ import { io } from "socket.io-client";
 import UserSquare from "./UserSquare";
 import MySquare from "./MySquare";
 import { setpeers } from "../../modules/peers";
+import { setsocket } from "../../modules/socket";
 
 export const Video = ({ stream }) => {
   const ref = useRef();
@@ -30,6 +31,7 @@ const PureRTC = () => {
   useEffect(() => {
     const socket = io("localhost:8080");
     socketRef.current = socket;
+    dispatch(setsocket(socket));
 
     const constraints = {
       video: true,
@@ -42,6 +44,7 @@ const PureRTC = () => {
 
     navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
       const id = socket.id;
+      console.log("my id = ", id);
       const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       const audioContext = audioCtx;
       // const audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -151,12 +154,19 @@ const PureRTC = () => {
     });
   }, []);
 
+  console.log(users);
+
   return (
     <div>
       <MySquare stream={MyVideo} />
       {Object.keys(users).length > 0 &&
         Object.keys(users).map((key, idx) => (
-          <UserSquare stream={users[key]} peer={peers[key]} key={idx} />
+          <UserSquare
+            stream={users[key]}
+            peer={peers[key]}
+            key={idx}
+            user_id={key}
+          />
         ))}
     </div>
   );

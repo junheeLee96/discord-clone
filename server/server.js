@@ -130,6 +130,10 @@ io.on("connection", (socket) => {
     io.to(reciever).emit(`candidate`, ice, sender);
   });
 
+  socket.on("speaking", (id, roomid) => {
+    socket.to(roomid).emit("speaking", id);
+  });
+
   //
   //
   //
