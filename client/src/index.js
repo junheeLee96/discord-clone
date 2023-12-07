@@ -7,11 +7,14 @@ import { createStore } from "redux";
 import { Provider } from "react-redux";
 import rootReducer from "./modules";
 
+// import { faCheckSquare, faSpinner } from "@fortawesome/free-solid-svg-icons";
+// import { faDis } from "@fortawesome/free-regular-svg-icons";
+
 const store = createStore(rootReducer);
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <Provider store={store}>
-    <App />,
+    <App />
   </Provider>
 );
 

@@ -154,8 +154,6 @@ const PureRTC = () => {
     });
   }, []);
 
-  console.log(users);
-
   return (
     <div>
       <MySquare stream={MyVideo} />
