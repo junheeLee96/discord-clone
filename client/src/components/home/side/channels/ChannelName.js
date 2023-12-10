@@ -36,7 +36,7 @@ const ChannelNameStyle = styled.div`
   padding: 12px 16px 12px 16px;
   justify-content: space-between;
   position: relative;
-
+  align-items: center;
   span {
     font-weight: bold;
   }

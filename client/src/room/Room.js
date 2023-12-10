@@ -6,6 +6,8 @@ import StreamBtns from "./streaming/StreamBtns";
 import VideoCall from "./pure/VideoCall";
 import RoomComponent from "./pure/RoomComponent";
 import PureRTC from "./audioChat/PureRTC";
+import styled from "@emotion/styled";
+import UserBoxes from "./userBoxes/UserBoxes";
 
 export const getUserMedia =
   navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozG;
@@ -16,14 +18,22 @@ const Room = () => {
   const { roomid } = useParams();
 
   return (
-    <div>
+    <RoomStyle>
+      <UserBoxes />
       {/* <RoomComponent /> */}
-      <PureRTC />
+      {/* <PureRTC /> */}
       {/* <VideoCall /> */}
       {/* <StreamBtns roomid={roomid} />
       <AudioChat roomid={roomid} /> */}
-    </div>
+    </RoomStyle>
   );
 };
 
 export default Room;
+
+const RoomStyle = styled.div`
+  flex: 1;
+  height: 100%;
+  overflow: hidden;
+  background: red;
+`;

@@ -9,23 +9,24 @@ const UserSquare = ({ stream, user_id }) => {
   useEffect(() => {
     if (!socket) return;
 
-    socket.on("speaking", (id) => {
-      console.log(user_id);
-      console.log(id);
-      if (id === user_id) {
-        ref.current.style.border = "1px solid red";
-        // setIsSpeak(true);
-      } else {
-        ref.current.style.border = "none";
-        // setIsSpeak(false);
-      }
-    });
+    // socket.on("speaking", (id) => {
+    //   console.log(user_id);
+    //   console.log(id);
+    //   if (id === user_id) {
+    //     ref.current.style.border = "1px solid red";
+    //     // setIsSpeak(true);
+    //   } else {
+    //     ref.current.style.border = "none";
+    //     // setIsSpeak(false);
+    //   }
+    // });
   }, [socket]);
 
   useEffect(() => {
     if (!stream || !stream) return;
     ref.current.srcObject = stream.stream;
   }, [stream]);
+
   return (
     <div
       style={{
@@ -33,6 +34,8 @@ const UserSquare = ({ stream, user_id }) => {
         height: "800px",
       }}
     >
+      {" "}
+      <button style={{ color: "black" }}>gdgd</button>
       <video ref={ref} autoPlay width={500} height={500} />
     </div>
   );

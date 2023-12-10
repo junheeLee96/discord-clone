@@ -16,6 +16,5 @@ export default Side;
 const SideStyle = styled.div`
   width: 300px;
   height: 100%;
-  background: blue;
   display: flex;
 `;

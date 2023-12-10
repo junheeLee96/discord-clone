@@ -17,7 +17,7 @@ export default ChannelContainer;
 const ChannelContainerStyle = styled.div`
   flex: 1;
   height: 100%;
-  background: green;
+  background: rgb(38, 40, 43);
 `;
 
 const LineDivStyle = styled.div`
