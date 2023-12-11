@@ -17,4 +17,8 @@ const SideStyle = styled.div`
   width: 300px;
   height: 100%;
   display: flex;
+
+  @media (max-width: 1000px) {
+    display: none;
+  }
 `;

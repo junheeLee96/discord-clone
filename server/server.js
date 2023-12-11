@@ -134,6 +134,14 @@ io.on("connection", (socket) => {
     socket.to(roomid).emit("speaking", id);
   });
 
+  socket.on("renegotiate_offer", (offer, sender, reciever) => {
+    io.to(reciever).emit(`renegotiate_offer`, offer, sender);
+  });
+
+  socket.on("renegotiate_answer", (answer, sender, reciever) => {
+    io.to(reciever).emit(`renegotiate_answer`, answer, sender);
+  });
+
   //
   //
   //

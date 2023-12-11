@@ -13,11 +13,14 @@ const UserBoxes = () => {
   const socketRef = useRef(null);
   const idRef = useRef(null);
   const [MyVideo, setMyVideo] = useState(null);
+  const [isVideoOn, setIsVideoOn] = useState(false);
   const myvideo = useRef(null);
   // const [users, setUsers] = useState({});
   const users = useSelector((s) => s.peers.peers);
+  //   console.log(users);
   // const [peers, setPeers] = useState({});
   const peers = useRef({});
+  const myIdRef = useRef(null);
 
   const { roomid } = useParams();
 
@@ -37,16 +40,17 @@ const UserBoxes = () => {
 
     navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
       const id = socket.id;
+      myIdRef.current = id;
       console.log("my id = ", id);
-      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      const audioContext = audioCtx;
-      // const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-      const source = audioContext.createMediaStreamSource(stream);
-      const gainNode = audioContext.createGain();
-      gainNode.gain.value = 0.5;
-      var gainConnected = source.connect(gainNode);
-      gainConnected.connect(audioContext.destination);
-      gainNode.gain.value = 0;
+      //   const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      //   const audioContext = audioCtx;
+      //   // const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      //   const source = audioContext.createMediaStreamSource(stream);
+      //   const gainNode = audioContext.createGain();
+      //   gainNode.gain.value = 0.5;
+      //   var gainConnected = source.connect(gainNode);
+      //   gainConnected.connect(audioContext.destination);
+      //   gainNode.gain.value = 0;
       idRef.current = id;
       // const audio = stream.getAudioTracks()[0];
       // audio.enabled = false;
@@ -82,7 +86,6 @@ const UserBoxes = () => {
             peers.current[user] = { ...peers.current[user], peer };
             // 스트림 추가
             await peers.current[user].peer.addStream(stream);
-            // addEventlistener
             eventing(peers.current[user].peer, user);
             // 오퍼 생성
             const offer = await peers.current[user].peer.createOffer();
@@ -136,6 +139,9 @@ const UserBoxes = () => {
           //   return { ...p, [new_user]: { stream } };
           // });
         });
+        // peers.current[new_user].peer.addEventListener("addtrack", (e) => {
+        //   console.log(e);
+        // });
         // offer 추가
         await peers.current[new_user].peer.setRemoteDescription(offer);
         // answer 생성
@@ -144,21 +150,75 @@ const UserBoxes = () => {
         socket.emit("send_ans", answer, id, new_user);
       });
 
+      socket.on("renegotiate_offer", async (offer, sender) => {
+        console.log(sender);
+        console.log(peers.current[sender].peer);
+        await peers.current[sender].peer.setRemoteDescription(offer);
+        const answer = await peers.current.peer.createAnswer();
+        peers.current[sender].peer.setLocalDescription(answer);
+        // await users[sender].peer.setRemoteDescription(offer);
+        // const answer = await users[sender].peer.createAnswer();
+        // users[sender].peer.setLocalDescription(answer);
+        socketRef.current.emit(
+          "renegotiate_answer",
+          answer,
+          myIdRef.current,
+          sender
+        );
+      });
+
+      socket.on("renegotiate_answer", async (answer, sender) => {
+        await peers.current[sender].peer.setRemoteDescription(answer);
+        // await users[sender].peer.setRemoteDescription(answer);
+      });
+
       // 새 유저로부터 SDP제안 수신
     });
   }, []);
 
   async function onClick() {
-    navigator.mediaDevices.getUserMedia({ video: true }).then((stream) => {
-      stream.getTracks().forEach((track) => {
-        myvideo.current.srcObject.addTrack(track);
+    // console.log(myvideo.current.srcObject.getSenders());
+
+    if (isVideoOn) {
+      myvideo.current.srcObject.getTracks().forEach((track) => {
+        console.log(track);
+        if (track.kind === "video") {
+          track.stop();
+          myvideo.current.srcObject.removeTrack(track);
+        }
       });
-    });
+    } else {
+      navigator.mediaDevices
+        .getUserMedia({ video: true, audio: true })
+        .then((stream) => {
+          Object.keys(users).forEach(async (key) => {
+            users[key].peer.addStream(stream);
+            const offer = await users[key].peer.createOffer();
+            users[key].peer.setLocalDescription(offer);
+            socketRef.current.emit(
+              "renegotiate_offer",
+              offer,
+              myIdRef.current,
+              key
+            );
+          });
+          // stream.getTracks().forEach((track) => {
+          //   myvideo.current.srcObject.addTrack(track);
+          //   Object.keys(peers.current).forEach((key) => {
+          //       console.log(users[key]);
+          //       users[key].peer.addTrack()
+          //     // users[key].stream.addTrack(track);
+          //     // peers.current[key].peer.addTrack(track, users[key].stream);
+          //   });
+          // });
+          setIsVideoOn(true);
+        });
+    }
   }
 
   return (
     <UserBoxesStyle>
-      <video ref={myvideo} autoPlay />
+      <video ref={myvideo} autoPlay muted={true} />
       <button style={{ color: "black" }} onClick={onClick}>
         gdgd
       </button>
