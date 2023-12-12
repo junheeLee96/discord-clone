@@ -9,7 +9,7 @@ const User = ({ stream, peer, user_id }) => {
   }, [stream]);
   return (
     <UserStyle>
-      <VideoStyle ref={ref} autoPlay />
+      <VideoStyle ref={ref} autoPlay muted={true} />
     </UserStyle>
   );
 };

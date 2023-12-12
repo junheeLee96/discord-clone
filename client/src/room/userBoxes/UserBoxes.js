@@ -152,9 +152,9 @@ const UserBoxes = () => {
 
       socket.on("renegotiate_offer", async (offer, sender) => {
         console.log(sender);
-        console.log(peers.current[sender].peer);
+        console.log(peers.current);
         await peers.current[sender].peer.setRemoteDescription(offer);
-        const answer = await peers.current.peer.createAnswer();
+        const answer = await peers.current[sender].peer.createAnswer();
         peers.current[sender].peer.setLocalDescription(answer);
         // await users[sender].peer.setRemoteDescription(offer);
         // const answer = await users[sender].peer.createAnswer();
@@ -168,6 +168,7 @@ const UserBoxes = () => {
       });
 
       socket.on("renegotiate_answer", async (answer, sender) => {
+        console.log(peers.current[sender]);
         await peers.current[sender].peer.setRemoteDescription(answer);
         // await users[sender].peer.setRemoteDescription(answer);
       });
@@ -179,6 +180,8 @@ const UserBoxes = () => {
   async function onClick() {
     // console.log(myvideo.current.srcObject.getSenders());
 
+    // console.log(peers.current);
+    // return;
     if (isVideoOn) {
       myvideo.current.srcObject.getTracks().forEach((track) => {
         console.log(track);
@@ -191,10 +194,11 @@ const UserBoxes = () => {
       navigator.mediaDevices
         .getUserMedia({ video: true, audio: true })
         .then((stream) => {
-          Object.keys(users).forEach(async (key) => {
-            users[key].peer.addStream(stream);
-            const offer = await users[key].peer.createOffer();
-            users[key].peer.setLocalDescription(offer);
+          myvideo.current.srcObject = stream;
+          Object.keys(peers.current).forEach(async (key) => {
+            peers.current[key].peer.addStream(stream);
+            const offer = await peers.current[key].peer.createOffer();
+            peers.current[key].peer.setLocalDescription(offer);
             socketRef.current.emit(
               "renegotiate_offer",
               offer,
@@ -202,6 +206,17 @@ const UserBoxes = () => {
               key
             );
           });
+          //   Object.keys(users).forEach(async (key) => {
+          //     users[key].peer.addStream(stream);
+          //     const offer = await users[key].peer.createOffer();
+          //     users[key].peer.setLocalDescription(offer);
+          //   socketRef.current.emit(
+          //     "renegotiate_offer",
+          //     offer,
+          //     myIdRef.current,
+          //     key
+          //   );
+          // });
           // stream.getTracks().forEach((track) => {
           //   myvideo.current.srcObject.addTrack(track);
           //   Object.keys(peers.current).forEach((key) => {
