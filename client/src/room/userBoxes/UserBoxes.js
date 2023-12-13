@@ -2,11 +2,25 @@ import styled from "@emotion/styled";
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { io } from "socket.io-client";
-import { setpeers } from "../../modules/peers";
+import { setnickname, setpeers } from "../../modules/peers";
 import { setsocket } from "../../modules/socket";
 import { useParams } from "react-router-dom";
 import User from "./User";
 import MySquare from "../audioChat/MySquare";
+
+const nicknames = [
+  "홍길동",
+  "김지수",
+  "강서윤",
+  "이도훈",
+  "박민기",
+  "금하나",
+  "최지윤",
+  "배서희",
+  "이서진",
+  "최재환",
+];
+
 const UserBoxes = () => {
   const dispatch = useDispatch();
 
@@ -15,12 +29,15 @@ const UserBoxes = () => {
   const [MyVideo, setMyVideo] = useState(null);
   const [isVideoOn, setIsVideoOn] = useState(false);
   const myvideo = useRef(null);
+
   // const [users, setUsers] = useState({});
   const users = useSelector((s) => s.peers.peers);
+  console.log(users);
   //   console.log(users);
   // const [peers, setPeers] = useState({});
   const peers = useRef({});
   const myIdRef = useRef(null);
+  const mynickname = useRef(nicknames[Math.floor(Math.random() * 10)]);
 
   const { roomid } = useParams();
 
@@ -68,13 +85,15 @@ const UserBoxes = () => {
           // });
         });
       }
-      socket.emit("join-room", roomid, id);
+      socket.emit("join-room", roomid, id, mynickname.current);
       socket.on("origin_users", async (users) => {
         // for (const user of users) {
         users.forEach(async (user) => {
           // 방에있는 모든 유저
-          if (user !== id) {
+          if (user.id !== id) {
             // 피어생성
+            console.log(user);
+            dispatch(setnickname(user.id, user.nickname));
             const peer = new RTCPeerConnection({
               iceServers: [
                 {
@@ -83,14 +102,14 @@ const UserBoxes = () => {
               ],
             });
             // useRef에 유저와 피어 추가
-            peers.current[user] = { ...peers.current[user], peer };
+            peers.current[user.id] = { ...peers.current[user.id], peer };
             // 스트림 추가
-            await peers.current[user].peer.addStream(stream);
-            eventing(peers.current[user].peer, user);
+            await peers.current[user.id].peer.addStream(stream);
+            eventing(peers.current[user.id].peer, user.id);
             // 오퍼 생성
-            const offer = await peers.current[user].peer.createOffer();
-            peers.current[user].peer.setLocalDescription(offer);
-            socket.emit("send_off", offer, id, user);
+            const offer = await peers.current[user.id].peer.createOffer();
+            peers.current[user.id].peer.setLocalDescription(offer);
+            socket.emit("send_off", offer, id, user.id, mynickname.current);
           }
           // }
         });
@@ -98,10 +117,11 @@ const UserBoxes = () => {
 
       // socket.emit("join-room", roomId, id);
 
-      socket.on("send_ans", async (answer, sender) => {
+      socket.on("send_ans", async (answer, sender, nickname) => {
         // 시그널링 상태가 stable이 될 수 있으므로
         if ("have-local-offer" === peers.current[sender].peer.signalingState) {
           try {
+            // dispatch(setnickname(sender, nickname));
             await peers.current[sender].peer.setRemoteDescription(answer);
           } catch (err) {
             console.error("err!!", err);
@@ -114,7 +134,8 @@ const UserBoxes = () => {
         // ice 후보 교환
         peers.current[sender].peer.addIceCandidate(ice);
       });
-      socket.on("send_off", async (offer, new_user) => {
+      socket.on("send_off", async (offer, new_user, nickname) => {
+        dispatch(setnickname(new_user, nickname));
         // 오퍼를 받음.
         // 피어 생성
         const peer = new RTCPeerConnection({
@@ -147,12 +168,10 @@ const UserBoxes = () => {
         // answer 생성
         const answer = await peers.current[new_user].peer.createAnswer();
         peers.current[new_user].peer.setLocalDescription(answer);
-        socket.emit("send_ans", answer, id, new_user);
+        socket.emit("send_ans", answer, id, new_user, mynickname.current);
       });
 
       socket.on("renegotiate_offer", async (offer, sender) => {
-        console.log(sender);
-        console.log(peers.current);
         await peers.current[sender].peer.setRemoteDescription(offer);
         const answer = await peers.current[sender].peer.createAnswer();
         peers.current[sender].peer.setLocalDescription(answer);
@@ -168,7 +187,6 @@ const UserBoxes = () => {
       });
 
       socket.on("renegotiate_answer", async (answer, sender) => {
-        console.log(peers.current[sender]);
         await peers.current[sender].peer.setRemoteDescription(answer);
         // await users[sender].peer.setRemoteDescription(answer);
       });
@@ -233,10 +251,12 @@ const UserBoxes = () => {
 
   return (
     <UserBoxesStyle>
-      <video ref={myvideo} autoPlay muted={true} />
-      <button style={{ color: "black" }} onClick={onClick}>
-        gdgd
-      </button>
+      <div style={{ backgorund: "blue" }}>
+        <video ref={myvideo} autoPlay muted={true} />
+        <button style={{ color: "black" }} onClick={onClick}>
+          gdgd
+        </button>
+      </div>
       {Object.keys(users).length > 0 &&
         Object.keys(users).map((key, idx) => (
           <User key={idx} stream={users[key]} peer={peers[key]} user_id={key} />

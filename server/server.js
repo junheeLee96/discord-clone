@@ -98,12 +98,19 @@ io.on("connection", (socket) => {
   //   socket.broadcast.to(roomid).emit("zzzzzz");
   // });
 
-  socket.on("join-room", (roomid, id) => {
+  socket.on("join-room", (roomid, id, nickname) => {
+    console.log(nickname);
     console.log("join", id);
     socket.join(roomid);
-    const users = Array.from(io.sockets.adapter.rooms.get(roomid));
-    console.log(users);
-    socket.emit("origin_users", users);
+    users[id] = nickname;
+    const usersInRoom = Array.from(io.sockets.adapter.rooms.get(roomid));
+    const returnValue = [];
+
+    usersInRoom.forEach((user) => {
+      returnValue.push({ id: user, nickname: users[user] });
+    });
+    console.log(returnValue);
+    socket.emit("origin_users", returnValue);
     // if (Object.keys(users).length > 0) {
     //   const roomClients = Array.from(io.sockets.adapter.rooms.get(roomid));
     // }
@@ -112,16 +119,16 @@ io.on("connection", (socket) => {
     // socket.to(roomid).emit("new_user_conn", id);
   });
 
-  socket.on("send_off", (offer, sender, reciever) => {
+  socket.on("send_off", (offer, sender, reciever, nickname) => {
     // 오퍼
     console.log("send_off, sender = ", sender, "receiver = ", reciever);
-    io.to(reciever).emit(`send_off`, offer, sender);
+    io.to(reciever).emit(`send_off`, offer, sender, nickname);
   });
 
-  socket.on("send_ans", (answer, sender, reciever) => {
+  socket.on("send_ans", (answer, sender, reciever, nickname) => {
     // 오퍼 응답
     console.log("send_ans, sender = ", sender, "receiver = ", reciever);
-    io.to(reciever).emit(`send_ans`, answer, sender);
+    io.to(reciever).emit(`send_ans`, answer, sender, nickname);
   });
 
   socket.on("candidate", (ice, reciever, sender) => {
