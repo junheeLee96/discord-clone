@@ -99,8 +99,6 @@ io.on("connection", (socket) => {
   // });
 
   socket.on("join-room", (roomid, id, nickname) => {
-    console.log(nickname);
-    console.log("join", id);
     socket.join(roomid);
     users[id] = nickname;
     const usersInRoom = Array.from(io.sockets.adapter.rooms.get(roomid));
@@ -281,6 +279,8 @@ io.on("connection", (socket) => {
   // });
 
   socket.on("disconnect", () => {
+    console.log("disconnet");
+
     // 방을 나가게 된다면 socketRoom과 users의 정보에서 해당 유저를 지워줍니다.
     const roomID = socketRoom[socket.id];
 

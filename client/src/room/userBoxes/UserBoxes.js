@@ -79,6 +79,7 @@ const UserBoxes = () => {
         });
         peer.addEventListener("track", (e) => {
           const stream = e.streams[0];
+          console.log(stream.getTracks());
           dispatch(setpeers({ peer, userId: user, stream }));
           // setUsers((p) => {
           //   return { ...p, [user]: { stream } };
@@ -249,10 +250,25 @@ const UserBoxes = () => {
     }
   }
 
+  useEffect(() => {
+    console.log(users);
+  }, [users]);
+
   return (
     <UserBoxesStyle>
-      <div style={{ backgorund: "blue" }}>
-        <video ref={myvideo} autoPlay muted={true} />
+      <div
+        style={{
+          width: "200px",
+          aspectRatio: "1/0.7500187504687617",
+          background: "red",
+        }}
+      >
+        <video
+          ref={myvideo}
+          autoPlay
+          muted={true}
+          style={{ width: "100%", height: "100%" }}
+        />
         <button style={{ color: "black" }} onClick={onClick}>
           gdgd
         </button>
@@ -261,7 +277,7 @@ const UserBoxes = () => {
         Object.keys(users).map((key, idx) => (
           <User key={idx} stream={users[key]} peer={peers[key]} user_id={key} />
         ))}
-      <User />
+      {/* <User /> */}
     </UserBoxesStyle>
   );
 };
