@@ -1,32 +1,28 @@
 import styled from "@emotion/styled";
 import React, { useEffect, useRef } from "react";
-
+import { useSelector } from "react-redux";
+import { background_arr } from "../User";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDiscord } from "@fortawesome/free-brands-svg-icons";
-export const background_arr = [
-  "105, 113, 127",
-  "39,155,85",
-  "255,157,44",
-  "234,51,156",
-];
 
-const User = ({ stream, peer, user_id }) => {
-  const ref = useRef();
+export const myBackgroundColor =
+  background_arr[Math.floor(Math.random() * background_arr.length)];
+
+const MyVideo = () => {
+  const ref = useRef(null);
+  const { myStream, id } = useSelector((s) => s.myStream);
+
   useEffect(() => {
-    if (!stream || !stream) return;
-    if (!stream.stream) return;
-    ref.current.srcObject = stream.stream;
-    // if (stream.stream.getTracks()) console.log(stream.stream.getTracks());
-  }, [stream]);
+    console.log(myStream);
+    if (!myStream) return;
+  }, [myStream]);
   return (
     <UserStyle
       style={{
-        background: `rgb(${
-          background_arr[Math.floor(Math.random() * background_arr.length)]
-        })`,
+        background: `rgb(${myBackgroundColor})`,
       }}
     >
-      <VideoStyle ref={ref} autoPlay muted={true} />
+      <VideoStyle ref={ref} />
       <FontAwesomeIcon
         icon={faDiscord}
         style={{ position: "absolute", fontSize: "30px" }}
@@ -35,7 +31,7 @@ const User = ({ stream, peer, user_id }) => {
   );
 };
 
-export default User;
+export default MyVideo;
 
 const UserStyle = styled.div`
   width: 200px;

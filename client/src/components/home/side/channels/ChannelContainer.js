@@ -2,12 +2,14 @@ import React from "react";
 import styled from "@emotion/styled";
 import ChannelName from "./ChannelName";
 import Channels from "./Channels";
+import SetupContainer from "./setupContainer/SetupContainer";
 const ChannelContainer = () => {
   return (
     <ChannelContainerStyle>
       <ChannelName />
       <LineDivStyle />
       <Channels />
+      <SetupContainer />
     </ChannelContainerStyle>
   );
 };
@@ -18,6 +20,7 @@ const ChannelContainerStyle = styled.div`
   flex: 1;
   height: 100%;
   background: rgb(38, 40, 43);
+  position: relative;
 `;
 
 const LineDivStyle = styled.div`

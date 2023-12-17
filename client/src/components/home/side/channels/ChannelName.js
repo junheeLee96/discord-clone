@@ -4,7 +4,7 @@ import styled from "@emotion/styled";
 const ChannelName = () => {
   return (
     <ChannelNameStyle>
-      <span>즐거운 생활</span>
+      <span style={{ display: "block" }}>즐거운 생활</span>
       <ArrowWrapperStyle>
         <BrokenArrowDivStyle
           style={{

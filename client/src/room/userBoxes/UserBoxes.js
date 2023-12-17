@@ -7,6 +7,8 @@ import { setsocket } from "../../modules/socket";
 import { useParams } from "react-router-dom";
 import User from "./User";
 import MySquare from "../audioChat/MySquare";
+import { setmystream } from "../../modules/myStream";
+import MyVideo from "./myVideo/MyVideo";
 
 const nicknames = [
   "홍길동",
@@ -26,7 +28,7 @@ const UserBoxes = () => {
 
   const socketRef = useRef(null);
   const idRef = useRef(null);
-  const [MyVideo, setMyVideo] = useState(null);
+  // const [MyVideo, setMyVideo] = useState(null);
   const [isVideoOn, setIsVideoOn] = useState(false);
   const myvideo = useRef(null);
 
@@ -37,7 +39,9 @@ const UserBoxes = () => {
   // const [peers, setPeers] = useState({});
   const peers = useRef({});
   const myIdRef = useRef(null);
-  const mynickname = useRef(nicknames[Math.floor(Math.random() * 10)]);
+  const mynickname = useRef(
+    nicknames[Math.floor(Math.random() * nicknames.length)]
+  );
 
   const { roomid } = useParams();
 
@@ -59,6 +63,7 @@ const UserBoxes = () => {
       const id = socket.id;
       myIdRef.current = id;
       console.log("my id = ", id);
+      dispatch(setmystream(stream, id, mynickname.current));
       //   const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       //   const audioContext = audioCtx;
       //   // const audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -71,8 +76,8 @@ const UserBoxes = () => {
       idRef.current = id;
       // const audio = stream.getAudioTracks()[0];
       // audio.enabled = false;
-      setMyVideo(stream);
-      myvideo.current.srcObject = stream;
+      // setMyVideo(stream);
+      // myvideo.current.srcObject = stream;
       function eventing(peer, user) {
         peer.addEventListener("icecandidate", (data) => {
           socket.emit("candidate", data.candidate, user, id);
@@ -250,17 +255,16 @@ const UserBoxes = () => {
     }
   }
 
-  useEffect(() => {
-    console.log(users);
-  }, [users]);
-
   return (
     <UserBoxesStyle>
-      <div
+      <MyVideo />
+      {/* <div
         style={{
           width: "200px",
           aspectRatio: "1/0.7500187504687617",
           background: "red",
+          margin: "0 5px",
+          borderRadius: "16px",
         }}
       >
         <video
@@ -272,7 +276,7 @@ const UserBoxes = () => {
         <button style={{ color: "black" }} onClick={onClick}>
           gdgd
         </button>
-      </div>
+      </div> */}
       {Object.keys(users).length > 0 &&
         Object.keys(users).map((key, idx) => (
           <User key={idx} stream={users[key]} peer={peers[key]} user_id={key} />
