@@ -1,12 +1,16 @@
 import styled from "@emotion/styled";
-import React from "react";
+import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPhoneFlip, faDisplay } from "@fortawesome/free-solid-svg-icons";
 const PeerSetup = () => {
-  const { myStream, myId } = useSelector((s) => s.myStream);
+  const { myStream, myId, socket } = useSelector((s) => s.myStream);
 
   const handleVideoTrack = () => {};
+
+  const leaveRoom = () => {};
+
+  useEffect(() => {}, []);
   return (
     <PeerSetupStyle>
       <FontAwesomeIcon
@@ -18,6 +22,7 @@ const PeerSetup = () => {
         }}
       />
       <FontAwesomeIcon
+        onClick={leaveRoom}
         icon={faPhoneFlip}
         style={{
           cursor: "pointer",

@@ -25,7 +25,7 @@ const nicknames = [
 
 const UserBoxes = () => {
   const dispatch = useDispatch();
-
+  const { socket } = useSelector((s) => s.socket);
   const socketRef = useRef(null);
   const idRef = useRef(null);
   // const [MyVideo, setMyVideo] = useState(null);
@@ -46,10 +46,12 @@ const UserBoxes = () => {
   const { roomid } = useParams();
 
   useEffect(() => {
-    const socket = io("localhost:8080");
-    socketRef.current = socket;
-    dispatch(setsocket(socket));
+    // const socket = io("localhost:8080");
+    // socketRef.current = socket;
+    // dispatch(setsocket(socket));
+    // socket
 
+    if (!socket) return;
     const constraints = {
       //   video: true,
       audio: {
@@ -61,9 +63,10 @@ const UserBoxes = () => {
 
     navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
       const id = socket.id;
+      console.log("socket = ", socket);
       myIdRef.current = id;
       console.log("my id = ", id);
-      dispatch(setmystream(stream, id, mynickname.current));
+      dispatch(setmystream(stream, id, mynickname.current, socket));
       //   const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       //   const audioContext = audioCtx;
       //   // const audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -199,7 +202,7 @@ const UserBoxes = () => {
 
       // 새 유저로부터 SDP제안 수신
     });
-  }, []);
+  }, [socket]);
 
   async function onClick() {
     // console.log(myvideo.current.srcObject.getSenders());

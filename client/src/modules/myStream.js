@@ -1,16 +1,18 @@
 const SETMYSTREAM = "myStream/SETMYSTREAM";
 
-export const setmystream = (stream, id, nickname) => ({
+export const setmystream = (stream, id, nickname, socket) => ({
   type: SETMYSTREAM,
   payload: stream,
   id,
   nickname,
+  socket,
 });
 
 const initialState = {
   myStream: null,
   myId: null,
   nickname: null,
+  socket: null,
 };
 
 function myStream(state = initialState, action) {
@@ -21,6 +23,7 @@ function myStream(state = initialState, action) {
         myStream: action.payload,
         id: action.id,
         nickname: action.nickname,
+        socket: action.socket,
       };
 
     default:
