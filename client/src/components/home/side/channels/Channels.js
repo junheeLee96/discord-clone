@@ -15,8 +15,7 @@ const Channels = () => {
   const { peers } = useSelector((s) => s.peers);
   const { myStream, myId, nickname } = useSelector((s) => s.myStream);
 
-  const handelRoom = (e) => {
-    const { id } = e.target;
+  const handelRoom = () => {
     navigate("/123123");
   };
 
@@ -35,7 +34,7 @@ const Channels = () => {
       <div style={{ display: "flex", alignItems: "center" }}>
         <FontAwesomeIcon icon={faVolumeLow} />
         <ChannelStyle
-          id="123123"
+          // id="123123"
           onClick={handelRoom}
           style={{ display: "block", padding: "5px 0" }}
         >
@@ -58,7 +57,7 @@ const Channels = () => {
             />
           ))
         : users.map((user, idx) => (
-            <UserDivStyle ke={idx}>{user.nickname}</UserDivStyle>
+            <UserDivStyle key={idx}>{user.nickname}</UserDivStyle>
           ))}
     </ChannelsStyle>
   );

@@ -185,7 +185,8 @@ io.on("connection", (socket) => {
     // if (room in rooms) {
     //   rooms[room] = rooms[room].filter((id) => id.id !== socket.id);
     // }
-
+    const room = user_roomid[socket.id];
+    socket.broadcast.to(room).emit("user_disconnect", socket.id);
     deleteUser(socket.id);
     // 방을 나가게 된다면 socketRoom과 users의 정보에서 해당 유저를 지워줍니다.
     // const roomID = [socket.id];
