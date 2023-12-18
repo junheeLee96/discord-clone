@@ -1,5 +1,11 @@
 const SETPEERS = "peers/SETPEERS";
 const SETNICKNAME = "peers/SETNICKNAME";
+const SETDISCINNECT = "peers/SETDISCINNECT";
+
+export const setdisconnect = (id) => ({
+  type: SETDISCINNECT,
+  id,
+});
 
 export const setpeers = ({ peer, userId, stream }) => ({
   type: SETPEERS,
@@ -20,6 +26,15 @@ const initialState = {
 
 function peers(state = initialState, action) {
   switch (action.type) {
+    case SETDISCINNECT:
+      console.log(action);
+      const copy = { ...state.peers };
+      delete copy[action.id];
+      console.log(copy);
+      return {
+        ...state,
+        peers: { ...copy },
+      };
     case SETNICKNAME:
       return {
         peers: {

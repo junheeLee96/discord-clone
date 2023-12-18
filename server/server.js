@@ -90,6 +90,14 @@ let rooms = {};
 // socket.id기준으로 어떤 방에 들어있는지
 
 io.on("connection", (socket) => {
+  function deleteUser(id) {
+    const room = user_roomid[id];
+    delete users[id];
+    delete user_roomid[id];
+    if (room in rooms) {
+      rooms[room] = rooms[room].filter((id) => id.id !== socket.id);
+    }
+  }
   // socket.on("zz", (roomid) => {
   //   socket.join(roomid);
   //   console.log("zzz");
@@ -102,7 +110,7 @@ io.on("connection", (socket) => {
       arr = [...rooms[roomid]];
     }
 
-    console.log("arr = ", arr);
+    // console.log("arr = ", arr);
 
     socket.emit("there are users", arr);
   });
@@ -110,6 +118,7 @@ io.on("connection", (socket) => {
   socket.on("join-room", (roomid, id, nickname) => {
     socket.join(roomid);
     users[id] = nickname;
+    console.log("id = ", id);
     user_roomid[id] = roomid;
     if (roomid in rooms) {
       rooms[roomid] = [...rooms[roomid], { id, nickname }];
@@ -117,34 +126,31 @@ io.on("connection", (socket) => {
       rooms[roomid] = [{ id, nickname }];
     }
 
-    console.log("user_roomid = ", user_roomid);
-    console.log("rooms = ", rooms);
-    console.log(rooms);
     const usersInRoom = Array.from(io.sockets.adapter.rooms.get(roomid));
     const returnValue = [];
 
     usersInRoom.forEach((user) => {
       returnValue.push({ id: user, nickname: users[user] });
     });
-    console.log(returnValue);
+    // console.log(returnValue);
     socket.emit("origin_users", returnValue);
   });
 
   socket.on("send_off", (offer, sender, reciever, nickname) => {
     // 오퍼
-    console.log("send_off, sender = ", sender, "receiver = ", reciever);
+    // console.log("send_off, sender = ", sender, "receiver = ", reciever);
     io.to(reciever).emit(`send_off`, offer, sender, nickname);
   });
 
   socket.on("send_ans", (answer, sender, reciever, nickname) => {
     // 오퍼 응답
-    console.log("send_ans, sender = ", sender, "receiver = ", reciever);
+    // console.log("send_ans, sender = ", sender, "receiver = ", reciever);
     io.to(reciever).emit(`send_ans`, answer, sender, nickname);
   });
 
   socket.on("candidate", (ice, reciever, sender) => {
     // ice 교환 => 길찾기
-    console.log("candiate, sender = ", sender, "re = ", reciever);
+    // console.log("candiate, sender = ", sender, "re = ", reciever);
     io.to(reciever).emit(`candidate`, ice, sender);
   });
 
@@ -160,14 +166,27 @@ io.on("connection", (socket) => {
     io.to(reciever).emit(`renegotiate_answer`, answer, sender);
   });
 
+  socket.on("leaveRoom", (id) => {
+    console.log(user_roomid);
+    const room = user_roomid[id];
+    console.log(id);
+    console.log(room);
+    console.log(user_roomid);
+    console.log("user disconn");
+    socket.broadcast.to(room).emit("user_disconnect", id);
+    deleteUser(id);
+  });
+
   socket.on("disconnect", () => {
     console.log("disconnet");
-    const room = user_roomid[socket.id];
-    delete users[socket.id];
-    delete user_roomid[socket.id];
-    if (room in rooms) {
-      rooms[room] = rooms[room].filter((id) => id.id !== socket.id);
-    }
+    // const room = user_roomid[socket.id];
+    // delete users[socket.id];
+    // delete user_roomid[socket.id];
+    // if (room in rooms) {
+    //   rooms[room] = rooms[room].filter((id) => id.id !== socket.id);
+    // }
+
+    deleteUser(socket.id);
     // 방을 나가게 된다면 socketRoom과 users의 정보에서 해당 유저를 지워줍니다.
     // const roomID = [socket.id];
 

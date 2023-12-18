@@ -11,12 +11,9 @@ const Channels = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { roomid } = useParams();
-  console.log(roomid);
   const [users, setUsers] = useState([]);
   const { peers } = useSelector((s) => s.peers);
   const { myStream, myId, nickname } = useSelector((s) => s.myStream);
-  console.log(nickname);
-  console.log(peers);
 
   const handelRoom = (e) => {
     const { id } = e.target;
@@ -29,7 +26,6 @@ const Channels = () => {
     socket.emit("how_many_users", "123123");
 
     socket.on("there are users", (users) => {
-      console.log(users);
       setUsers(users);
     });
   }, []);

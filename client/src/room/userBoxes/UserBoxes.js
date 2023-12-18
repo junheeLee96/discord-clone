@@ -2,7 +2,7 @@ import styled from "@emotion/styled";
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { io } from "socket.io-client";
-import { setnickname, setpeers } from "../../modules/peers";
+import { setdisconnect, setnickname, setpeers } from "../../modules/peers";
 import { setsocket } from "../../modules/socket";
 import { useParams } from "react-router-dom";
 import User from "./User";
@@ -34,7 +34,6 @@ const UserBoxes = () => {
 
   // const [users, setUsers] = useState({});
   const users = useSelector((s) => s.peers.peers);
-  console.log(users);
   //   console.log(users);
   // const [peers, setPeers] = useState({});
   const peers = useRef({});
@@ -200,9 +199,19 @@ const UserBoxes = () => {
         // await users[sender].peer.setRemoteDescription(answer);
       });
 
+      socket.on("user_disconnect", (id) => {
+        console.log(id);
+        delete peers.current[id];
+        dispatch(setdisconnect(id));
+      });
+
       // 새 유저로부터 SDP제안 수신
     });
   }, [socket]);
+
+  useEffect(() => {
+    console.log(users);
+  }, [users]);
 
   async function onClick() {
     // console.log(myvideo.current.srcObject.getSenders());

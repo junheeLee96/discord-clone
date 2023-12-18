@@ -21,7 +21,7 @@ function myStream(state = initialState, action) {
       // console.log(action);
       return {
         myStream: action.payload,
-        id: action.id,
+        myId: action.id,
         nickname: action.nickname,
         socket: action.socket,
       };

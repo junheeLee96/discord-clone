@@ -2,7 +2,7 @@ import styled from "@emotion/styled";
 import React from "react";
 
 const ChannelUser = ({ nickname, stream, id, peer }) => {
-  console.log(stream);
+  // console.log(stream);
   return (
     <ChannelUserStyle>
       <NameSpanStyle className="nickname_sp">{nickname}</NameSpanStyle>
