@@ -1,13 +1,10 @@
 import styled from "@emotion/styled";
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { io } from "socket.io-client";
 import { setdisconnect, setnickname, setpeers } from "../../modules/peers";
-import { setsocket } from "../../modules/socket";
 import { useParams } from "react-router-dom";
 import User from "./User";
-import MySquare from "../audioChat/MySquare";
-import { setmystream } from "../../modules/myStream";
+import { setmystream, setmystreamconf } from "../../modules/myStream";
 import MyVideo from "./myVideo/MyVideo";
 
 const nicknames = [
@@ -49,6 +46,7 @@ const UserBoxes = () => {
     // socketRef.current = socket;
     // dispatch(setsocket(socket));
     // socket
+    // console.log(socket);
 
     if (!socket) return;
     const constraints = {
@@ -62,10 +60,10 @@ const UserBoxes = () => {
 
     navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
       const id = socket.id;
-      console.log("socket = ", socket);
+      // console.log("socket = ", socket);
       myIdRef.current = id;
-      console.log("my id = ", id);
-      dispatch(setmystream(stream, id, mynickname.current, socket));
+      // console.log("my id = ", id);
+      dispatch(setmystreamconf(stream, id, mynickname.current, socket));
       //   const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       //   const audioContext = audioCtx;
       //   // const audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -100,7 +98,7 @@ const UserBoxes = () => {
           // 방에있는 모든 유저
           if (user.id !== id) {
             // 피어생성
-            console.log(user);
+            // console.log(user);
             dispatch(setnickname(user.id, user.nickname));
             const peer = new RTCPeerConnection({
               iceServers: [
@@ -186,12 +184,7 @@ const UserBoxes = () => {
         // await users[sender].peer.setRemoteDescription(offer);
         // const answer = await users[sender].peer.createAnswer();
         // users[sender].peer.setLocalDescription(answer);
-        socketRef.current.emit(
-          "renegotiate_answer",
-          answer,
-          myIdRef.current,
-          sender
-        );
+        socket.emit("renegotiate_answer", answer, myIdRef.current, sender);
       });
 
       socket.on("renegotiate_answer", async (answer, sender) => {
@@ -208,10 +201,6 @@ const UserBoxes = () => {
       // 새 유저로부터 SDP제안 수신
     });
   }, [socket]);
-
-  useEffect(() => {
-    console.log(users);
-  }, [users]);
 
   async function onClick() {
     // console.log(myvideo.current.srcObject.getSenders());
@@ -230,7 +219,7 @@ const UserBoxes = () => {
       navigator.mediaDevices
         .getUserMedia({ video: true, audio: true })
         .then((stream) => {
-          myvideo.current.srcObject = stream;
+          // myvideo.current.srcObject = stream;
           Object.keys(peers.current).forEach(async (key) => {
             peers.current[key].peer.addStream(stream);
             const offer = await peers.current[key].peer.createOffer();

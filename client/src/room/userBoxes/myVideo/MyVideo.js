@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { background_arr } from "../User";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -11,11 +11,18 @@ export const myBackgroundColor =
 const MyVideo = () => {
   const ref = useRef(null);
   const { myStream, id } = useSelector((s) => s.myStream);
+  const [stream, setStream] = useState(null);
 
   useEffect(() => {
-    console.log(myStream);
     if (!myStream) return;
+    ref.current.srcObject = myStream;
+    // setStream(myStream);
   }, [myStream]);
+
+  useEffect(() => {
+    if (!stream) return;
+    ref.current.srcObject = stream;
+  }, [stream]);
   return (
     <UserStyle
       style={{

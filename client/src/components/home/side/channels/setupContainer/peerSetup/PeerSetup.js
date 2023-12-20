@@ -1,18 +1,58 @@
 import styled from "@emotion/styled";
-import React, { useEffect } from "react";
-import { useSelector } from "react-redux";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPhoneFlip, faDisplay } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
+import { setmystream } from "../../../../../../modules/myStream";
 const PeerSetup = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const [isVideoOn, setIsVideoOn] = useState(false);
+
   const { myStream, myId, socket } = useSelector((s) => s.myStream);
-  console.log(myId);
-  const handleVideoTrack = () => {};
+  const peers = useSelector((s) => s.peers.peers);
 
   const leaveRoom = () => {
     socket.emit("leaveRoom", myId);
     navigate("/");
+  };
+  const handleVideoTrack = () => {
+    if (isVideoOn) {
+    } else {
+      navigator.mediaDevices
+        .getUserMedia({ video: true, audio: true })
+        .then((stream) => {
+          dispatch(setmystream(stream));
+          Object.keys(peers).forEach(async (key) => {
+            peers[key].peer.addStream(stream);
+            const offer = await peers[key].peer.createOffer();
+            peers[key].peer.setLocalDescription(offer);
+            socket.emit("renegotiate_offer", offer, myId, key);
+          });
+          //   Object.keys(users).forEach(async (key) => {
+          //     users[key].peer.addStream(stream);
+          //     const offer = await users[key].peer.createOffer();
+          //     users[key].peer.setLocalDescription(offer);
+          //   socketRef.current.emit(
+          //     "renegotiate_offer",
+          //     offer,
+          //     myIdRef.current,
+          //     key
+          //   );
+          // });
+          // stream.getTracks().forEach((track) => {
+          //   myvideo.current.srcObject.addTrack(track);
+          //   Object.keys(peers.current).forEach((key) => {
+          //       console.log(users[key]);
+          //       users[key].peer.addTrack()
+          //     // users[key].stream.addTrack(track);
+          //     // peers.current[key].peer.addTrack(track, users[key].stream);
+          //   });
+          // });
+          setIsVideoOn(true);
+        });
+    }
   };
 
   return (

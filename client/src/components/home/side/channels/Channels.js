@@ -14,6 +14,7 @@ const Channels = () => {
   const [users, setUsers] = useState([]);
   const { peers } = useSelector((s) => s.peers);
   const { myStream, myId, nickname } = useSelector((s) => s.myStream);
+  // console.log(nickname);
 
   const handelRoom = () => {
     navigate("/123123");
