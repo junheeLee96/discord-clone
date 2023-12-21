@@ -10,13 +10,14 @@ export const myBackgroundColor =
 
 const MyVideo = () => {
   const ref = useRef(null);
-  const { myStream, id } = useSelector((s) => s.myStream);
+  const { myStream, myId } = useSelector((s) => s.myStream);
   const [stream, setStream] = useState(null);
 
   useEffect(() => {
     if (!myStream) return;
+    console.log(myStream.getTracks());
     ref.current.srcObject = myStream;
-    // setStream(myStream);
+    setStream(myStream);
   }, [myStream]);
 
   useEffect(() => {
@@ -29,7 +30,7 @@ const MyVideo = () => {
         background: `rgb(${myBackgroundColor})`,
       }}
     >
-      <VideoStyle ref={ref} />
+      <VideoStyle ref={ref} autoPlay />
       <FontAwesomeIcon
         icon={faDiscord}
         style={{ position: "absolute", fontSize: "30px" }}
