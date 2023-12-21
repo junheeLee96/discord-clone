@@ -17,41 +17,50 @@ const PeerSetup = () => {
     socket.emit("leaveRoom", myId);
     navigate("/");
   };
+
+  function renegotiate(condition) {
+    navigator.mediaDevices
+      .getUserMedia({ audio: true, video: condition })
+      .then((stream) => {
+        dispatch(setmystream(stream));
+        Object.keys(peers).forEach(async (key) => {
+          peers[key].peer.addStream(stream);
+          const offer = await peers[key].peer.createOffer();
+          peers[key].peer.setLocalDescription(offer);
+          socket.emit("renegotiate_offer", offer, myId, key);
+        });
+        setIsVideoOn(condition);
+      });
+  }
   const handleVideoTrack = () => {
     if (isVideoOn) {
+      renegotiate(false);
+      // navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
+      //   dispatch(setmystream(stream));
+      //   Object.keys(peers).forEach(async (key) => {
+      //     peers[key].peer.addStream(stream);
+      //     const offer = await peers[key].peer.createOffer();
+      //     peers[key].peer.setLocalDescription(offer);
+      //     socket.emit("renegotiate_offer", offer, myId, key);
+      //   });
+
+      // });
+      // setIsVideoOn(false);
     } else {
-      navigator.mediaDevices
-        .getUserMedia({ video: true, audio: true })
-        .then((stream) => {
-          dispatch(setmystream(stream));
-          Object.keys(peers).forEach(async (key) => {
-            peers[key].peer.addStream(stream);
-            const offer = await peers[key].peer.createOffer();
-            peers[key].peer.setLocalDescription(offer);
-            socket.emit("renegotiate_offer", offer, myId, key);
-          });
-          //   Object.keys(users).forEach(async (key) => {
-          //     users[key].peer.addStream(stream);
-          //     const offer = await users[key].peer.createOffer();
-          //     users[key].peer.setLocalDescription(offer);
-          //   socketRef.current.emit(
-          //     "renegotiate_offer",
-          //     offer,
-          //     myIdRef.current,
-          //     key
-          //   );
-          // });
-          // stream.getTracks().forEach((track) => {
-          //   myvideo.current.srcObject.addTrack(track);
-          //   Object.keys(peers.current).forEach((key) => {
-          //       console.log(users[key]);
-          //       users[key].peer.addTrack()
-          //     // users[key].stream.addTrack(track);
-          //     // peers.current[key].peer.addTrack(track, users[key].stream);
-          //   });
-          // });
-          setIsVideoOn(true);
-        });
+      renegotiate(true);
+      // navigator.mediaDevices
+      //   .getUserMedia({ video: true, audio: true })
+      //   .then((stream) => {
+      //     dispatch(setmystream(stream));
+      //     Object.keys(peers).forEach(async (key) => {
+      //       peers[key].peer.addStream(stream);
+      //       const offer = await peers[key].peer.createOffer();
+      //       peers[key].peer.setLocalDescription(offer);
+      //       socket.emit("renegotiate_offer", offer, myId, key);
+      //     });
+
+      //   });
+      // setIsVideoOn(true);
     }
   };
 

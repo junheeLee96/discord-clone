@@ -30,7 +30,7 @@ const MyVideo = () => {
         background: `rgb(${myBackgroundColor})`,
       }}
     >
-      <VideoStyle ref={ref} autoPlay />
+      <VideoStyle ref={ref} autoPlay muted={true} />
       <FontAwesomeIcon
         icon={faDiscord}
         style={{ position: "absolute", fontSize: "30px" }}
