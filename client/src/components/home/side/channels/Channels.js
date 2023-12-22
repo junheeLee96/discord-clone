@@ -70,8 +70,7 @@ const ChannelsStyle = styled.div`
   width: 100%;
   margin-top: 10px;
   display: flex;
-  padding-left: 8px;
-  cursor: pointer;
+  // padding-left: 8px;
   flex-direction: column;
 `;
 

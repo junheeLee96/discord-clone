@@ -35,32 +35,8 @@ const PeerSetup = () => {
   const handleVideoTrack = () => {
     if (isVideoOn) {
       renegotiate(false);
-      // navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
-      //   dispatch(setmystream(stream));
-      //   Object.keys(peers).forEach(async (key) => {
-      //     peers[key].peer.addStream(stream);
-      //     const offer = await peers[key].peer.createOffer();
-      //     peers[key].peer.setLocalDescription(offer);
-      //     socket.emit("renegotiate_offer", offer, myId, key);
-      //   });
-
-      // });
-      // setIsVideoOn(false);
     } else {
       renegotiate(true);
-      // navigator.mediaDevices
-      //   .getUserMedia({ video: true, audio: true })
-      //   .then((stream) => {
-      //     dispatch(setmystream(stream));
-      //     Object.keys(peers).forEach(async (key) => {
-      //       peers[key].peer.addStream(stream);
-      //       const offer = await peers[key].peer.createOffer();
-      //       peers[key].peer.setLocalDescription(offer);
-      //       socket.emit("renegotiate_offer", offer, myId, key);
-      //     });
-
-      //   });
-      // setIsVideoOn(true);
     }
   };
 

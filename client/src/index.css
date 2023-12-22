@@ -111,12 +111,14 @@ time,
 mark,
 audio,
 video {
+  user-select: none;
   margin: 0;
   padding: 0;
   border: 0;
   font-size: 100%;
   font: inherit;
   vertical-align: baseline;
+  font-weight: 700;
   box-sizing: border-box;
 }
 /* HTML5 display-role reset for older browsers */

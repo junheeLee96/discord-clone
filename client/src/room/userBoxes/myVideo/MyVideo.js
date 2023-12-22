@@ -15,7 +15,6 @@ const MyVideo = () => {
 
   useEffect(() => {
     if (!myStream) return;
-    console.log(myStream.getTracks());
     ref.current.srcObject = myStream;
     setStream(myStream);
   }, [myStream]);
