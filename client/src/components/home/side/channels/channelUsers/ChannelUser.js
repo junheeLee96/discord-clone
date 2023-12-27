@@ -27,7 +27,12 @@ const ChannelUser = ({ nickname, stream, id, peer }) => {
   return (
     <ChannelUserStyle>
       {isClick && (
-        <Menu clickFalse={clickFalse} mousePosition={mousePosition} />
+        <Menu
+          clickFalse={clickFalse}
+          mousePosition={mousePosition}
+          stream={stream}
+          id={id}
+        />
       )}
       <NameSpanStyle className="nickname_sp" onContextMenu={handelContextMenu}>
         {nickname}

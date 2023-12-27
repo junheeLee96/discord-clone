@@ -3,6 +3,7 @@ import React, { useEffect, useRef } from "react";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDiscord } from "@fortawesome/free-brands-svg-icons";
+import { useSelector } from "react-redux";
 export const background_arr = [
   "105, 113, 127",
   "39,155,85",
@@ -12,12 +13,20 @@ export const background_arr = [
 
 const User = ({ stream, peer, user_id }) => {
   const ref = useRef();
+  const vol = useSelector((s) => s.peers.peers[user_id].volume);
+
   useEffect(() => {
     if (!stream || !stream) return;
     if (!stream.stream) return;
     ref.current.srcObject = stream.stream;
     // if (stream.stream.getTracks()) console.log(stream.stream.getTracks());
   }, [stream]);
+
+  useEffect(() => {
+    if (!ref.current) return;
+    if (isNaN(vol)) return;
+    ref.current.volume = parseFloat(vol);
+  }, [vol]);
   return (
     <UserStyle
       style={{
