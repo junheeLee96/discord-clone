@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPhoneFlip, faDisplay } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
 import { setmystream } from "../../../../../../modules/myStream";
+import MicroPhoneControl from "./microphoneControl/MicroPhoneControl";
 const PeerSetup = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -50,6 +51,7 @@ const PeerSetup = () => {
           color: "rgb(172, 177, 185) !important",
         }}
       />
+      <MicroPhoneControl />
       <CallDisconnectStyle
         onClick={leaveRoom}
         icon={faPhoneFlip}
