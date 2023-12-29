@@ -46,6 +46,9 @@ const MyVideo = () => {
     }
     const a = new Date();
     console.log(a);
+    if (a == 1) {
+      console.log("null!!");
+    }
     //success
     ref.current.srcObject = controlledStream;
   }, [vol]);
