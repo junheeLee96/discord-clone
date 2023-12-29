@@ -44,7 +44,8 @@ const MyVideo = () => {
     for (const videoTrack of videoTracks) {
       controlledStream.addTrack(videoTrack);
     }
-
+    const a = new Date();
+    console.log(a);
     //success
     ref.current.srcObject = controlledStream;
   }, [vol]);
