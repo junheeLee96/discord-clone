@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import React from "react";
+import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDiscord } from "@fortawesome/free-brands-svg-icons";
 import {
@@ -9,10 +9,19 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { myBackgroundColor } from "../../../../../../room/userBoxes/myVideo/MyVideo";
 import { useSelector } from "react-redux";
+import ControlMicroPhoneVol from "./controlMicroPhoneVol/ControlMicroPhoneVol";
 const MicorPhonesSetup = ({}) => {
   const { nickname } = useSelector((s) => s.myStream);
+  const [isSetup, setIsSetup] = useState(false);
+
+  function handleMicrophoneSetup() {
+    setIsSetup((p) => !p);
+  }
   return (
     <SetupContainerStyle>
+      {isSetup && (
+        <ControlMicroPhoneVol handleMicrophoneSetup={handleMicrophoneSetup} />
+      )}
       <div style={{ display: "flex", alignItems: "center" }}>
         <CircleDivStyle style={{ background: `rgb(${myBackgroundColor})` }}>
           <FontAwesomeIcon icon={faDiscord} />
@@ -30,7 +39,9 @@ const MicorPhonesSetup = ({}) => {
         />
         <FontAwesomeIcon
           icon={faGear}
-          style={{ color: "rgb(172, 177, 185)" }}
+          className="discord-fontawesome"
+          style={{ cursor: "pointer" }}
+          onClick={handleMicrophoneSetup}
         />
       </SetupIconsWrapperStyle>
     </SetupContainerStyle>

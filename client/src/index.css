@@ -188,3 +188,7 @@ button,
 label {
   user-select: none;
 }
+
+.discord-fontawesome {
+  color: rgb(172, 177, 185) !important;
+}
